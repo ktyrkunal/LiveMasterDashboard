@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Campaign Timeline — Marketing Dashboard</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+  :root {
+    --bg:#0d0f14;--surface:#141720;--surface2:#1b1f2e;--border:#252a3a;
+    --live:#00e5a0;--live-bg:rgba(0,229,160,0.1);
+    --paused:#ff6b6b;--paused-bg:rgba(255,107,107,0.1);
+    --tbl:#ffc107;--tbl-bg:rgba(255,193,7,0.1);
+    --new:#7c6af5;--new-bg:rgba(124,106,245,0.1);
+    --unknown:#778899;--unknown-bg:rgba(119,136,153,0.12);
+    --accent:#4f8ef7;--text:#e8eaf0;--muted:#7a829a;
+    --high:#ff6b6b;--medium:#ffc107;--low:#5bc2e7;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;line-height:1.5;min-height:100vh}
+
+  /* HEADER */
+  .header{padding:20px 28px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .header-left h1{font-size:20px;font-weight:700;letter-spacing:-0.5px}
+  .header-left p{color:var(--muted);font-size:12px;margin-top:2px}
+  .back-btn{padding:6px 14px;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:20px;cursor:pointer;font-size:12px;font-family:inherit;transition:all .15s;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+  .back-btn:hover{border-color:var(--accent);color:var(--accent)}
+
+  /* DATE PICKER SECTION */
+  .date-section{padding:28px 28px 0;display:flex;flex-direction:column;align-items:center;gap:20px}
+  .date-label{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;text-align:center}
+  .date-picker-wrap{display:flex;flex-direction:column;align-items:center;gap:10px}
+  .date-input-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:center}
+  input[type="date"]{
+    background:var(--surface2);border:1px solid var(--border);color:var(--text);
+    padding:10px 16px;border-radius:8px;font-size:15px;font-family:'JetBrains Mono',monospace;
+    outline:none;cursor:pointer;transition:border-color .15s;
+    color-scheme:dark;
+  }
+  input[type="date"]:focus{border-color:var(--accent)}
+  .go-btn{padding:10px 22px;background:var(--accent);border:none;color:#fff;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;transition:opacity .15s}
+  .go-btn:hover{opacity:.85}
+  .quick-dates{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+  .quick-chip{padding:5px 13px;border-radius:20px;font-size:11px;font-weight:500;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .15s}
+  .quick-chip:hover{border-color:var(--accent);color:var(--accent)}
+  .quick-chip.active{background:rgba(79,142,247,0.15);border-color:var(--accent);color:var(--accent)}
+
+  /* SELECTED DATE DISPLAY */
+  .selected-date-banner{
+    background:var(--surface);border:1px solid var(--border);border-radius:10px;
+    padding:16px 24px;text-align:center;min-width:260px;
+  }
+  .selected-date-banner .big-date{font-size:28px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--accent);letter-spacing:-1px}
+  .selected-date-banner .day-name{font-size:13px;color:var(--muted);margin-top:2px}
+
+  /* LOADING */
+  .loading-overlay{position:fixed;inset:0;background:rgba(13,15,20,.85);display:flex;align-items:center;justify-content:center;z-index:999;flex-direction:column;gap:12px;font-size:13px;color:var(--muted)}
+  .spinner{width:32px;height:32px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* RESULTS AREA */
+  .results-area{padding:24px 28px;display:flex;flex-direction:column;gap:20px}
+
+  /* SUMMARY PILLS ROW */
+  .summary-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1px;background:var(--border);border-radius:10px;overflow:hidden;border:1px solid var(--border)}
+  .summary-cell{background:var(--surface);padding:16px 20px;text-align:center}
+  .summary-number{font-size:32px;font-weight:700;font-family:'JetBrains Mono',monospace;letter-spacing:-1px}
+  .summary-label{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-top:3px}
+
+  /* FILTER BAR */
+  .filter-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:14px 18px;background:var(--surface);border:1px solid var(--border);border-radius:10px}
+  .filter-label{font-size:11px;color:var(--muted);font-weight:500}
+  .chip{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:500;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .15s;white-space:nowrap}
+  .chip:hover{border-color:var(--accent);color:var(--text)}
+  .chip.active-all{background:rgba(79,142,247,0.15);border-color:var(--accent);color:var(--accent)}
+  .chip.active-live{background:var(--live-bg);border-color:var(--live);color:var(--live)}
+  .chip.active-paused{background:var(--paused-bg);border-color:var(--paused);color:var(--paused)}
+  .chip.active-tbl{background:var(--tbl-bg);border-color:var(--tbl);color:var(--tbl)}
+  .chip.active-new{background:var(--new-bg);border-color:var(--new);color:var(--new)}
+  .search-wrap{position:relative;flex:1;min-width:160px;max-width:280px;margin-left:auto}
+  .search-wrap input{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:6px 11px 6px 30px;border-radius:6px;font-size:12px;font-family:inherit;outline:none;transition:border-color .15s}
+  .search-wrap input:focus{border-color:var(--accent)}
+  .search-wrap::before{content:"⌕";position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:14px;pointer-events:none}
+
+  /* STATUS SECTIONS */
+  .status-section{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+  .status-section-header{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+  .status-section-title{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:700}
+  .status-dot{width:10px;height:10px;border-radius:50%}
+  .status-count-badge{padding:2px 10px;border-radius:12px;font-size:11px;font-weight:700}
+
+  /* CARDS GRID */
+  .cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1px;background:var(--border)}
+  .project-card{background:var(--surface);padding:16px 18px;transition:background .15s;cursor:default}
+  .project-card:hover{background:var(--surface2)}
+  .card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px}
+  .project-name{font-size:13px;font-weight:600;color:var(--text);line-height:1.4;flex:1}
+  .status-pill{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:12px;font-size:10px;font-weight:700;white-space:nowrap;flex-shrink:0}
+  .card-meta{display:grid;grid-template-columns:1fr 1fr;gap:5px 12px}
+  .meta-item{display:flex;flex-direction:column;gap:1px}
+  .meta-key{font-size:9px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+  .meta-val{font-size:11px;color:var(--text);font-family:'JetBrains Mono',monospace}
+  .meta-val.budget-high{color:var(--live)}
+  .meta-val.budget-mid{color:var(--accent)}
+  .priority-tag{display:inline-block;padding:1px 7px;border-radius:8px;font-size:9px;font-weight:600}
+
+  /* EMPTY STATE */
+  .empty-state{padding:48px;text-align:center;color:var(--muted)}
+  .empty-icon{font-size:36px;margin-bottom:12px}
+  .empty-title{font-size:15px;font-weight:600;color:var(--text);margin-bottom:6px}
+  .empty-sub{font-size:12px;line-height:1.6}
+
+  /* PLACEHOLDER */
+  .placeholder-area{padding:60px 28px;display:flex;flex-direction:column;align-items:center;gap:16px;text-align:center}
+  .placeholder-icon{font-size:56px;opacity:.4}
+  .placeholder-title{font-size:18px;font-weight:600;color:var(--text)}
+  .placeholder-sub{font-size:13px;color:var(--muted);max-width:380px;line-height:1.7}
+
+  /* TOOLTIP */
+  .tooltip{position:fixed;background:#1e2433;border:1px solid var(--border);padding:10px 14px;border-radius:8px;font-size:12px;pointer-events:none;z-index:1000;max-width:260px;box-shadow:0 8px 24px rgba(0,0,0,0.4);transition:opacity .1s;opacity:0}
+  .tooltip.visible{opacity:1}
+  .tooltip-title{font-weight:600;color:var(--text);margin-bottom:6px;line-height:1.4}
+  .tooltip-row{display:flex;justify-content:space-between;gap:16px;color:var(--muted);margin-top:3px}
+  .tooltip-row span:last-child{color:var(--text);font-family:'JetBrains Mono',monospace}
+
+  @media(max-width:600px){
+    .header{padding:14px 16px}
+    .date-section{padding:20px 16px 0}
+    .results-area{padding:16px}
+    .cards-grid{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+
+<div id="loading-overlay" class="loading-overlay" style="display:none">
+  <div class="spinner"></div>
+  <span>Fetching campaign data…</span>
+</div>
+
+<div class="tooltip" id="tooltip"></div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <h1>📅 Campaign Timeline View</h1>
+    <p>Pick any date to see which campaigns are LIVE, PAUSED, or scheduled</p>
+  </div>
+  <a class="back-btn" href="index.html">← Back to Dashboard</a>
+</div>
+
+<!-- DATE PICKER -->
+<div class="date-section">
+  <div class="date-picker-wrap">
+    <div class="date-label">Select a Date</div>
+    <div class="date-input-row">
+      <div class="selected-date-banner" id="date-banner">
+        <div class="big-date" id="banner-date">— — —</div>
+        <div class="day-name" id="banner-day">Choose a date below</div>
+      </div>
+    </div>
+    <div class="date-input-row" style="margin-top:8px">
+      <input type="date" id="date-input" onchange="onDateChange()">
+      <button class="go-btn" onclick="loadForDate()">Show Campaigns</button>
+    </div>
+    <div class="quick-dates" id="quick-dates">
+      <button class="quick-chip" onclick="setQuickDate(0)">Today</button>
+      <button class="quick-chip" onclick="setQuickDate(-1)">Yesterday</button>
+      <button class="quick-chip" onclick="setQuickDate(1)">Tomorrow</button>
+      <button class="quick-chip" onclick="setQuickDate(-7)">Last Week</button>
+      <button class="quick-chip" onclick="setQuickDate(7)">Next Week</button>
+    </div>
+  </div>
+</div>
+
+<!-- PLACEHOLDER (shown before first search) -->
+<div class="placeholder-area" id="placeholder">
+  <div class="placeholder-icon">🗓️</div>
+  <div class="placeholder-title">Pick a date to get started</div>
+  <div class="placeholder-sub">
+    Select any date above and click <strong style="color:var(--accent)">Show Campaigns</strong>.
+    You'll see every campaign broken down by its status — LIVE, PAUSED, To Be Live, or New — on that day.
+  </div>
+</div>
+
+<!-- RESULTS (hidden until search) -->
+<div class="results-area" id="results-area" style="display:none">
+
+  <!-- SUMMARY ROW -->
+  <div class="summary-row" id="summary-row"></div>
+
+  <!-- FILTER BAR -->
+  <div class="filter-bar">
+    <span class="filter-label">SHOW</span>
+    <div id="filter-chips" style="display:flex;gap:6px;flex-wrap:wrap">
+      <button class="chip active-all" data-f="ALL" onclick="setFilter('ALL')">All</button>
+      <button class="chip" data-f="LIVE" onclick="setFilter('LIVE')">🟢 LIVE</button>
+      <button class="chip" data-f="TO BE LIVE" onclick="setFilter('TO BE LIVE')">🟡 To Be Live</button>
+      <button class="chip" data-f="PAUSED" onclick="setFilter('PAUSED')">🔴 Paused</button>
+      <button class="chip" data-f="NEW" onclick="setFilter('NEW')">🟣 New</button>
+    </div>
+    <div class="search-wrap">
+      <input type="text" id="search-input" placeholder="Search project…" oninput="renderCards()">
+    </div>
+  </div>
+
+  <!-- STATUS SECTIONS -->
+  <div id="sections-container"></div>
+
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+//  CONFIG — must match index.html
+// ══════════════════════════════════════════════
+const CAMPAIGNS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRGDbvnyVPzdVC7zH4GEbtWyaOXAJzKoGPZ5MHf925C87MSv7V76UMOK4vhuOiIIA/pub?gid=630108538&single=true&output=csv';
+
+// ══════════════════════════════════════════════
+//  STATUS NORMALISER (same logic as index.html)
+// ══════════════════════════════════════════════
+function normaliseStatus(raw) {
+  const s = (raw || '').trim().toUpperCase();
+  if (!s) return 'Unknown';
+  if (s === 'LIVE' || s === 'LIVE ') return 'LIVE';
+  if (s.startsWith('TO BE LIVE')) return 'TO BE LIVE';
+  if (s === 'NEW') return 'NEW';
+  if (s.includes('PAUSE') || s.includes('PAUSED')) return 'PAUSED';
+  if (s.startsWith('TO BE') || s.includes('UPCOMING') || s.includes('PENDING')) return 'TO BE LIVE';
+  return 'Unknown';
+}
+
+function normalisePriority(raw) {
+  const s = (raw || '').trim().toUpperCase();
+  if (s === 'HIGH' || s === 'H' || s === 'HGH') return 'High';
+  if (s === 'MEDIUM' || s === 'MED' || s === 'M') return 'Medium';
+  if (s === 'LOW' || s === 'L') return 'Low';
+  return 'Unknown';
+}
+
+// ══════════════════════════════════════════════
+//  CSV PARSER
+// ══════════════════════════════════════════════
+function parseCSV(text) {
+  const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim().split('\n');
+  if (lines.length < 2) return { headers: [], rows: [] };
+  function splitLine(line) {
+    const cells = []; let cell = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (ch === '"') { if (inQ && line[i+1] === '"') { cell += '"'; i++; } else inQ = !inQ; }
+      else if (ch === ',' && !inQ) { cells.push(cell.trim()); cell = ''; }
+      else { cell += ch; }
+    }
+    cells.push(cell.trim());
+    return cells;
+  }
+  const headers = splitLine(lines[0]).map(h => h.replace(/^"|"$/g, '').trim());
+  const rows = [];
+  for (let i = 1; i < lines.length; i++) {
+    if (!lines[i].trim()) continue;
+    const cells = splitLine(lines[i]);
+    const obj = {};
+    headers.forEach((h, idx) => { obj[h] = (cells[idx] || '').replace(/^"|"$/g, '').trim(); });
+    rows.push(obj);
+  }
+  return { headers, rows };
+}
+
+function parseCampaigns(csvText) {
+  const { rows } = parseCSV(csvText);
+  const records = [];
+  rows.forEach(r => {
+    const rawStatus = r['STATUS'] || r['Status'] || r['status'] || '';
+    if (!rawStatus.trim()) return;
+    const status     = normaliseStatus(rawStatus);
+    const priority   = normalisePriority(r['Priority'] || r['PRIORITY'] || '');
+    const location   = (r['Location'] || r['LOCATION'] || '').trim();
+    const project    = (r['Project Name'] || r['Project'] || r['PROJECT NAME'] || '').trim();
+    const costCentre = (r['Cost Centre'] || r['COST CENTRE'] || r['CostCentre'] || '').trim();
+    const source     = (r['Source'] || r['SOURCE'] || '').trim();
+    const leads      = parseInt((r['Lead Count'] || r['Leads'] || r['LEADS'] || '0').replace(/[^\d]/g, '')) || 0;
+    const cpl        = parseInt((r['CPL'] || '0').replace(/[^\d]/g, '')) || 0;
+    const budget     = parseInt((r['Total Budget'] || r['Budget'] || r['BUDGET'] || '0').replace(/[^\d]/g, '')) || 0;
+    const remarks    = (r['Remarks'] || r['REMARKS'] || r['Remark'] || '').trim();
+    if (!location && !project) return;
+    records.push({ status, priority, location, project, costCentre, source, leads, cpl, budget, remarks });
+  });
+  return records;
+}
+
+// ══════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════
+let ALL_CAMPAIGNS = [];
+let activeFilter = 'ALL';
+let selectedDateStr = ''; // YYYY-MM-DD
+
+// ══════════════════════════════════════════════
+//  DATE HELPERS
+// ══════════════════════════════════════════════
+function todayStr() {
+  const d = new Date();
+  return d.toISOString().split('T')[0]; // YYYY-MM-DD
+}
+
+function formatDisplayDate(str) {
+  if (!str) return '— — —';
+  const d = new Date(str + 'T00:00:00');
+  return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
+}
+
+function getDayName(str) {
+  if (!str) return '';
+  const d = new Date(str + 'T00:00:00');
+  return d.toLocaleDateString('en-IN', { weekday: 'long' });
+}
+
+function setQuickDate(offsetDays) {
+  const d = new Date();
+  d.setDate(d.getDate() + offsetDays);
+  const str = d.toISOString().split('T')[0];
+  document.getElementById('date-input').value = str;
+  onDateChange();
+  loadForDate();
+
+  // Mark active quick chip
+  document.querySelectorAll('.quick-chip').forEach((c, i) => {
+    const offsets = [0, -1, 1, -7, 7];
+    c.classList.toggle('active', offsets[i] === offsetDays);
+  });
+}
+
+function onDateChange() {
+  const val = document.getElementById('date-input').value;
+  selectedDateStr = val;
+  document.getElementById('banner-date').textContent = val ? formatDisplayDate(val) : '— — —';
+  document.getElementById('banner-day').textContent  = val ? getDayName(val) : 'Choose a date below';
+  // Clear quick chip active states when manually changed
+  document.querySelectorAll('.quick-chip').forEach(c => c.classList.remove('active'));
+}
+
+// ══════════════════════════════════════════════
+//  LOAD DATA
+// ══════════════════════════════════════════════
+async function loadForDate() {
+  const dateVal = document.getElementById('date-input').value;
+  if (!dateVal) { alert('Please select a date first.'); return; }
+  selectedDateStr = dateVal;
+  onDateChange();
+
+  document.getElementById('loading-overlay').style.display = 'flex';
+  document.getElementById('placeholder').style.display = 'none';
+
+  try {
+    const resp = await fetch(CAMPAIGNS_CSV_URL + '&cachebust=' + Date.now(), { cache: 'no-store' });
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const text = await resp.text();
+    ALL_CAMPAIGNS = parseCampaigns(text);
+
+    document.getElementById('results-area').style.display = 'flex';
+    activeFilter = 'ALL';
+    updateFilterChips();
+    document.getElementById('search-input').value = '';
+    renderSummary();
+    renderCards();
+  } catch(e) {
+    document.getElementById('placeholder').style.display = 'flex';
+    document.getElementById('placeholder').innerHTML = `
+      <div class="placeholder-icon">⚠️</div>
+      <div class="placeholder-title">Could not load data</div>
+      <div class="placeholder-sub" style="color:var(--paused)">${e.message}<br><br>Make sure the Google Sheet is published to web as CSV.</div>`;
+  } finally {
+    document.getElementById('loading-overlay').style.display = 'none';
+  }
+}
+
+// ══════════════════════════════════════════════
+//  FILTER
+// ══════════════════════════════════════════════
+function setFilter(f) {
+  activeFilter = f;
+  updateFilterChips();
+  renderCards();
+}
+
+function updateFilterChips() {
+  document.querySelectorAll('#filter-chips .chip').forEach(c => {
+    c.className = 'chip';
+    const f = c.dataset.f;
+    if (f === activeFilter) {
+      if (f === 'ALL') c.classList.add('active-all');
+      else if (f === 'LIVE') c.classList.add('active-live');
+      else if (f === 'PAUSED') c.classList.add('active-paused');
+      else if (f === 'TO BE LIVE') c.classList.add('active-tbl');
+      else if (f === 'NEW') c.classList.add('active-new');
+    }
+  });
+}
+
+function getFiltered() {
+  const q = (document.getElementById('search-input')?.value || '').toLowerCase().trim();
+  return ALL_CAMPAIGNS.filter(r => {
+    if (activeFilter !== 'ALL' && r.status !== activeFilter) return false;
+    if (q && !r.project.toLowerCase().includes(q) && !r.location.toLowerCase().includes(q) && !r.costCentre.toLowerCase().includes(q)) return false;
+    return true;
+  });
+}
+
+// ══════════════════════════════════════════════
+//  RENDER SUMMARY ROW
+// ══════════════════════════════════════════════
+function renderSummary() {
+  const counts = { LIVE: 0, 'TO BE LIVE': 0, PAUSED: 0, NEW: 0, Unknown: 0 };
+  let totalBudget = 0;
+  ALL_CAMPAIGNS.forEach(r => {
+    counts[r.status] = (counts[r.status] || 0) + 1;
+    totalBudget += r.budget;
+  });
+
+  const cells = [
+    { label: 'Total Campaigns', val: ALL_CAMPAIGNS.length, color: 'var(--accent)' },
+    { label: 'LIVE', val: counts['LIVE'], color: 'var(--live)' },
+    { label: 'To Be Live', val: counts['TO BE LIVE'], color: 'var(--tbl)' },
+    { label: 'Paused', val: counts['PAUSED'], color: 'var(--paused)' },
+    { label: 'New', val: counts['NEW'], color: 'var(--new)' },
+    { label: 'Total Budget', val: fmtNum(totalBudget), color: 'var(--accent)', raw: true },
+  ];
+
+  document.getElementById('summary-row').innerHTML = cells.map(c => `
+    <div class="summary-cell">
+      <div class="summary-number" style="color:${c.color}">${c.raw ? c.val : c.val}</div>
+      <div class="summary-label">${c.label}</div>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════════════
+//  RENDER CARDS (grouped by status)
+// ══════════════════════════════════════════════
+const STATUS_ORDER = ['LIVE', 'TO BE LIVE', 'PAUSED', 'NEW', 'Unknown'];
+const STATUS_META = {
+  'LIVE':       { color: 'var(--live)',    bg: 'var(--live-bg)',    icon: '🟢', label: 'LIVE' },
+  'TO BE LIVE': { color: 'var(--tbl)',     bg: 'var(--tbl-bg)',     icon: '🟡', label: 'TO BE LIVE' },
+  'PAUSED':     { color: 'var(--paused)',  bg: 'var(--paused-bg)',  icon: '🔴', label: 'PAUSED' },
+  'NEW':        { color: 'var(--new)',     bg: 'var(--new-bg)',     icon: '🟣', label: 'NEW' },
+  'Unknown':    { color: 'var(--unknown)', bg: 'var(--unknown-bg)', icon: '⚪', label: 'Unknown' },
+};
+
+function renderCards() {
+  const filtered = getFiltered();
+  const container = document.getElementById('sections-container');
+
+  if (!filtered.length) {
+    container.innerHTML = `<div class="status-section"><div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-title">No campaigns match your filters</div><div class="empty-sub">Try removing filters or searching something else.</div></div></div>`;
+    return;
+  }
+
+  // Group by status
+  const groups = {};
+  STATUS_ORDER.forEach(s => { groups[s] = []; });
+  filtered.forEach(r => {
+    if (!groups[r.status]) groups[r.status] = [];
+    groups[r.status].push(r);
+  });
+
+  let html = '';
+  STATUS_ORDER.forEach(status => {
+    const campaigns = groups[status];
+    if (!campaigns.length) return;
+
+    const meta = STATUS_META[status];
+    html += `
+      <div class="status-section" style="border-color:${meta.color}33">
+        <div class="status-section-header" style="background:${meta.bg}">
+          <div class="status-section-title">
+            <span style="font-size:18px">${meta.icon}</span>
+            <span style="color:${meta.color}">${meta.label}</span>
+            <span class="status-count-badge" style="background:${meta.bg};color:${meta.color};border:1px solid ${meta.color}44">${campaigns.length} campaign${campaigns.length !== 1 ? 's' : ''}</span>
+          </div>
+          <span style="font-size:11px;color:var(--muted)">${fmtNum(campaigns.reduce((s,r)=>s+r.budget,0))} total budget</span>
+        </div>
+        <div class="cards-grid">
+          ${campaigns.map(r => renderCard(r, meta)).join('')}
+        </div>
+      </div>`;
+  });
+
+  container.innerHTML = html;
+
+  // Attach tooltip events after DOM update
+  container.querySelectorAll('.project-card').forEach(card => {
+    const data = JSON.parse(card.dataset.record);
+    card.addEventListener('mouseenter', e => showTooltip(e, data));
+    card.addEventListener('mouseleave', hideTooltip);
+  });
+}
+
+function renderCard(r, meta) {
+  const budgetClass = r.budget > 500000 ? 'budget-high' : r.budget > 200000 ? 'budget-mid' : '';
+  const priBg  = r.priority==='High' ? 'rgba(255,107,107,0.15)' : r.priority==='Medium' ? 'rgba(255,193,7,0.15)' : r.priority==='Low' ? 'rgba(91,194,231,0.15)' : 'rgba(122,130,154,0.15)';
+  const priCol = r.priority==='High' ? 'var(--high)' : r.priority==='Medium' ? 'var(--medium)' : r.priority==='Low' ? 'var(--low)' : 'var(--muted)';
+
+  const escaped = JSON.stringify(r).replace(/'/g, '&#39;').replace(/"/g, '&quot;');
+  return `
+    <div class="project-card" data-record="${escaped}">
+      <div class="card-top">
+        <div class="project-name">${r.project || '(Unnamed)'}</div>
+        <span class="status-pill" style="background:${meta.bg};color:${meta.color};border:1px solid ${meta.color}44">${meta.icon} ${meta.label}</span>
+      </div>
+      <div class="card-meta">
+        <div class="meta-item">
+          <span class="meta-key">Location</span>
+          <span class="meta-val">${r.location || '—'}</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-key">Priority</span>
+          <span class="priority-tag" style="background:${priBg};color:${priCol}">${r.priority}</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-key">Budget</span>
+          <span class="meta-val ${budgetClass}">${r.budget ? fmtNum(r.budget) : '—'}</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-key">CPL</span>
+          <span class="meta-val">${r.cpl ? '₹'+r.cpl.toLocaleString('en-IN') : '—'}</span>
+        </div>
+        <div class="meta-item" style="grid-column:span 2">
+          <span class="meta-key">Cost Centre</span>
+          <span class="meta-val" style="font-family:inherit;font-size:11px;color:var(--muted)">${r.costCentre || '—'}</span>
+        </div>
+        ${r.source ? `<div class="meta-item" style="grid-column:span 2"><span class="meta-key">Source</span><span class="meta-val" style="font-family:inherit;font-size:11px"><span style="background:rgba(79,142,247,0.12);color:var(--accent);padding:2px 7px;border-radius:8px">${r.source}</span></span></div>` : ''}
+        ${r.remarks ? `<div class="meta-item" style="grid-column:span 2"><span class="meta-key">Remark</span><span class="meta-val" style="font-family:inherit;font-size:11px;color:var(--paused)">${r.remarks}</span></div>` : ''}
+      </div>
+    </div>`;
+}
+
+// ══════════════════════════════════════════════
+//  FORMAT HELPER
+// ══════════════════════════════════════════════
+function fmtNum(n) {
+  if (n >= 1e7) return '₹' + (n/1e7).toFixed(1) + 'Cr';
+  if (n >= 1e5) return '₹' + (n/1e5).toFixed(1) + 'L';
+  if (n >= 1e3) return '₹' + (n/1e3).toFixed(0) + 'K';
+  return '₹' + n;
+}
+
+// ══════════════════════════════════════════════
+//  TOOLTIP
+// ══════════════════════════════════════════════
+const tooltip = document.getElementById('tooltip');
+function showTooltip(e, r) {
+  tooltip.innerHTML = `
+    <div class="tooltip-title">${r.project}</div>
+    <div class="tooltip-row"><span>Status</span><span>${r.status}</span></div>
+    <div class="tooltip-row"><span>Location</span><span>${r.location}</span></div>
+    <div class="tooltip-row"><span>Cost Centre</span><span>${r.costCentre}</span></div>
+    <div class="tooltip-row"><span>Source</span><span>${r.source}</span></div>
+    <div class="tooltip-row"><span>Budget</span><span>${fmtNum(r.budget)}</span></div>
+    <div class="tooltip-row"><span>Leads Target</span><span>${r.leads.toLocaleString('en-IN')}</span></div>
+    <div class="tooltip-row"><span>CPL</span><span>${r.cpl ? '₹'+r.cpl.toLocaleString('en-IN') : '—'}</span></div>
+    ${r.remarks ? `<div class="tooltip-row"><span>Remark</span><span style="color:var(--paused)">${r.remarks}</span></div>` : ''}
+  `;
+  tooltip.classList.add('visible');
+  positionTooltip(e);
+}
+function positionTooltip(e) {
+  let x = e.clientX + 14, y = e.clientY - 10;
+  if (x + 280 > window.innerWidth) x = e.clientX - 290;
+  if (y + tooltip.offsetHeight > window.innerHeight) y = window.innerHeight - tooltip.offsetHeight - 10;
+  tooltip.style.left = x + 'px'; tooltip.style.top = y + 'px';
+}
+document.addEventListener('mousemove', e => { if (tooltip.classList.contains('visible')) positionTooltip(e); });
+function hideTooltip() { tooltip.classList.remove('visible'); }
+
+// ══════════════════════════════════════════════
+//  INIT — pre-fill today's date
+// ══════════════════════════════════════════════
+(function init() {
+  const input = document.getElementById('date-input');
+  input.value = todayStr();
+  onDateChange();
+})();
+</script>
+</body>
+</html>
