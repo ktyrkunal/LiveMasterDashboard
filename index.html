@@ -6,236 +6,140 @@
 <title>Marketing Budget Dashboard — June 2026</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
-
   :root {
-    --bg: #0d0f14;
-    --surface: #141720;
-    --surface2: #1b1f2e;
-    --border: #252a3a;
-    --live: #00e5a0;
-    --live-bg: rgba(0,229,160,0.1);
-    --paused: #ff6b6b;
-    --paused-bg: rgba(255,107,107,0.1);
-    --tbl: #ffc107;
-    --tbl-bg: rgba(255,193,7,0.1);
-    --new: #7c6af5;
-    --new-bg: rgba(124,106,245,0.1);
-    --unknown: #778899;
-    --unknown-bg: rgba(119,136,153,0.12);
-    --accent: #4f8ef7;
-    --text: #e8eaf0;
-    --muted: #7a829a;
-    --high: #ff6b6b;
-    --medium: #ffc107;
-    --low: #5bc2e7;
+    --bg:#0d0f14;--surface:#141720;--surface2:#1b1f2e;--border:#252a3a;
+    --live:#00e5a0;--live-bg:rgba(0,229,160,0.1);
+    --paused:#ff6b6b;--paused-bg:rgba(255,107,107,0.1);
+    --tbl:#ffc107;--tbl-bg:rgba(255,193,7,0.1);
+    --new:#7c6af5;--new-bg:rgba(124,106,245,0.1);
+    --unknown:#778899;--unknown-bg:rgba(119,136,153,0.12);
+    --accent:#4f8ef7;--text:#e8eaf0;--muted:#7a829a;
+    --high:#ff6b6b;--medium:#ffc107;--low:#5bc2e7;
   }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;line-height:1.5;min-height:100vh}
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  /* HEADER */
+  .header{padding:20px 28px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .header-left h1{font-size:20px;font-weight:700;letter-spacing:-0.5px}
+  .header-left p{color:var(--muted);font-size:12px;margin-top:2px}
+  .header-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .badge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600}
+  .badge-live{background:var(--live-bg);color:var(--live);border:1px solid rgba(0,229,160,0.3)}
+  .badge-paused{background:var(--paused-bg);color:var(--paused);border:1px solid rgba(255,107,107,0.3)}
+  .badge-tbl{background:var(--tbl-bg);color:var(--tbl);border:1px solid rgba(255,193,7,0.3)}
+  .badge-new{background:var(--new-bg);color:var(--new);border:1px solid rgba(124,106,245,0.3)}
+  .badge-unknown{background:var(--unknown-bg);color:var(--unknown);border:1px solid rgba(119,136,153,0.3)}
+  .badge .dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+  .refresh-btn{padding:4px 12px;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:20px;cursor:pointer;font-size:11px;font-family:inherit;transition:all .15s}
+  .refresh-btn:hover{border-color:var(--accent);color:var(--accent)}
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Inter', sans-serif;
-    font-size: 14px;
-    line-height: 1.5;
-    min-height: 100vh;
-  }
+  /* DATA STATUS BAR */
+  .status-bar{padding:8px 28px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;font-size:12px;flex-wrap:wrap}
+  .status-bar .label{color:var(--muted)}
+  .status-bar .val{color:var(--text);font-weight:500}
+  .status-dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:5px}
+  .dot-green{background:#00e5a0}
+  .dot-yellow{background:#ffc107;animation:pulse 1.2s infinite}
+  .dot-red{background:#ff6b6b}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 
-  /* ─── HEADER ─── */
-  .header {
-    padding: 24px 32px 20px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    flex-wrap: wrap;
-  }
-  .header-left h1 {
-    font-size: 22px;
-    font-weight: 700;
-    letter-spacing: -0.5px;
-    color: var(--text);
-  }
-  .header-left p { color: var(--muted); font-size: 13px; margin-top: 2px; }
-  .badge {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;
-  }
-  .badge-live { background: var(--live-bg); color: var(--live); border: 1px solid rgba(0,229,160,0.3); }
-  .badge-paused { background: var(--paused-bg); color: var(--paused); border: 1px solid rgba(255,107,107,0.3); }
-  .badge-tbl { background: var(--tbl-bg); color: var(--tbl); border: 1px solid rgba(255,193,7,0.3); }
-  .badge-new { background: var(--new-bg); color: var(--new); border: 1px solid rgba(124,106,245,0.3); }
-  .badge-unknown { background: var(--unknown-bg); color: var(--unknown); border: 1px solid rgba(119,136,153,0.25); }
-  .badge .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  /* BUDGET ALLOCATION BANNER */
+  .alloc-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1px;background:var(--border);border-bottom:1px solid var(--border)}
+  .alloc-cell{background:var(--surface);padding:12px 16px}
+  .alloc-branch{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.7px}
+  .alloc-name{font-size:11px;color:var(--text);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .alloc-budget{font-size:15px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--accent);margin-top:3px}
+  .alloc-used{font-size:10px;color:var(--muted);margin-top:2px}
+  .alloc-bar-track{height:3px;background:var(--surface2);border-radius:2px;margin-top:5px;overflow:hidden}
+  .alloc-bar-fill{height:100%;border-radius:2px;background:var(--accent);transition:width .4s}
 
-  /* ─── KPI ROW ─── */
-  .kpi-row {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 1px;
-    border-bottom: 1px solid var(--border);
-    background: var(--border);
-  }
-  .kpi {
-    background: var(--surface);
-    padding: 20px 24px;
-    cursor: pointer;
-    transition: background 0.15s;
-  }
-  .kpi:hover { background: var(--surface2); }
-  .kpi.active { background: var(--surface2); border-bottom: 2px solid var(--accent); }
-  .kpi-label { font-size: 11px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; }
-  .kpi-value {
-    font-size: 28px; font-weight: 700; font-family: 'JetBrains Mono', monospace;
-    margin-top: 4px; letter-spacing: -1px;
-  }
-  .kpi-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  /* KPI ROW */
+  .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--border);border-bottom:1px solid var(--border)}
+  .kpi{background:var(--surface);padding:18px 22px;cursor:pointer;transition:background .15s}
+  .kpi:hover{background:var(--surface2)}
+  .kpi.active{background:var(--surface2);border-bottom:2px solid var(--accent)}
+  .kpi-label{font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.8px}
+  .kpi-value{font-size:26px;font-weight:700;font-family:'JetBrains Mono',monospace;margin-top:3px;letter-spacing:-1px}
+  .kpi-sub{font-size:11px;color:var(--muted);margin-top:2px}
 
-  /* ─── FILTERS ─── */
-  .filters {
-    padding: 16px 32px;
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    flex-wrap: wrap;
-    border-bottom: 1px solid var(--border);
-    background: var(--surface);
-  }
-  .filter-label { font-size: 12px; color: var(--muted); font-weight: 500; margin-right: 4px; }
+  /* FILTERS */
+  .filters{padding:12px 28px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;border-bottom:1px solid var(--border);background:var(--surface)}
+  .filter-label{font-size:11px;color:var(--muted);font-weight:500}
+  .chip-group{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+  .chip{padding:4px 11px;border-radius:20px;font-size:11px;font-weight:500;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .15s;white-space:nowrap}
+  .chip:hover{border-color:var(--accent);color:var(--text)}
+  .chip.active-live{background:var(--live-bg);border-color:var(--live);color:var(--live)}
+  .chip.active-paused{background:var(--paused-bg);border-color:var(--paused);color:var(--paused)}
+  .chip.active-tbl{background:var(--tbl-bg);border-color:var(--tbl);color:var(--tbl)}
+  .chip.active-new{background:var(--new-bg);border-color:var(--new);color:var(--new)}
+  .chip.active-all{background:rgba(79,142,247,0.15);border-color:var(--accent);color:var(--accent)}
+  .divider{width:1px;height:22px;background:var(--border)}
+  .search-wrap{position:relative;flex:1;min-width:160px;max-width:280px}
+  .search-wrap input{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:6px 11px 6px 30px;border-radius:6px;font-size:12px;font-family:inherit;outline:none;transition:border-color .15s}
+  .search-wrap input:focus{border-color:var(--accent)}
+  .search-wrap::before{content:"⌕";position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:14px;pointer-events:none}
+  select{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:6px 26px 6px 9px;border-radius:6px;font-size:11px;font-family:inherit;outline:none;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%237a829a'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 7px center}
+  .reset-btn{padding:5px 11px;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:6px;cursor:pointer;font-size:11px;font-family:inherit;transition:all .15s}
+  .reset-btn:hover{border-color:var(--paused);color:var(--paused)}
 
-  .chip-group { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
-  .chip {
-    padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 500;
-    border: 1px solid var(--border); background: transparent; color: var(--muted);
-    cursor: pointer; transition: all 0.15s; white-space: nowrap;
-  }
-  .chip:hover { border-color: var(--accent); color: var(--text); }
-  .chip.active-live { background: var(--live-bg); border-color: var(--live); color: var(--live); }
-  .chip.active-paused { background: var(--paused-bg); border-color: var(--paused); color: var(--paused); }
-  .chip.active-tbl { background: var(--tbl-bg); border-color: var(--tbl); color: var(--tbl); }
-  .chip.active-new { background: var(--new-bg); border-color: var(--new); color: var(--new); }
-  .chip.active-unknown { background: var(--unknown-bg); border-color: var(--unknown); color: var(--unknown); }
-  .chip.active-all { background: rgba(79,142,247,0.15); border-color: var(--accent); color: var(--accent); }
+  /* MAIN */
+  .main{padding:20px 28px;display:flex;flex-direction:column;gap:20px}
+  .charts-row{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  @media(max-width:900px){.charts-row{grid-template-columns:1fr}}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+  .card-header{padding:14px 18px 11px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+  .card-title{font-size:13px;font-weight:600;color:var(--text)}
+  .card-body{padding:18px}
+  .bar-chart{display:flex;flex-direction:column;gap:9px}
+  .bar-row{display:flex;align-items:center;gap:9px}
+  .bar-name{font-size:11px;color:var(--muted);width:75px;flex-shrink:0;text-align:right}
+  .bar-track{flex:1;height:20px;background:var(--surface2);border-radius:4px;overflow:hidden}
+  .bar-fill{height:100%;border-radius:4px;transition:width .4s ease}
+  .bar-val{font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--muted);width:58px;text-align:right;flex-shrink:0}
+  .donut-wrap{display:flex;align-items:center;gap:22px}
+  .donut-legend{display:flex;flex-direction:column;gap:9px;flex:1}
+  .legend-item{display:flex;align-items:center;gap:7px;font-size:12px}
+  .legend-dot{width:9px;height:9px;border-radius:3px;flex-shrink:0}
+  .legend-name{color:var(--muted);flex:1}
+  .legend-val{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text)}
 
-  .divider { width: 1px; height: 24px; background: var(--border); }
-  .search-wrap { position: relative; flex: 1; min-width: 180px; max-width: 300px; }
-  .search-wrap input {
-    width: 100%; background: var(--surface2); border: 1px solid var(--border); color: var(--text);
-    padding: 7px 12px 7px 32px; border-radius: 6px; font-size: 13px; font-family: inherit;
-    outline: none; transition: border-color 0.15s;
-  }
-  .search-wrap input:focus { border-color: var(--accent); }
-  .search-wrap::before {
-    content: "⌕"; position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
-    color: var(--muted); font-size: 15px; pointer-events: none;
-  }
-
-  select {
-    background: var(--surface2); border: 1px solid var(--border); color: var(--text);
-    padding: 7px 28px 7px 10px; border-radius: 6px; font-size: 12px; font-family: inherit;
-    outline: none; cursor: pointer; appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%237a829a'/%3E%3C/svg%3E");
-    background-repeat: no-repeat; background-position: right 8px center;
-  }
-
-  /* ─── CHARTS + TABLE ─── */
-  .main { padding: 24px 32px; display: flex; flex-direction: column; gap: 24px; }
-
-  .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-  @media (max-width: 900px) { .charts-row { grid-template-columns: 1fr; } }
-
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    overflow: hidden;
-  }
-  .card-header {
-    padding: 16px 20px 12px;
-    border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .card-title { font-size: 13px; font-weight: 600; color: var(--text); }
-  .card-body { padding: 20px; }
-
-  /* Bar chart */
-  .bar-chart { display: flex; flex-direction: column; gap: 10px; }
-  .bar-row { display: flex; align-items: center; gap: 10px; }
-  .bar-name { font-size: 12px; color: var(--muted); width: 80px; flex-shrink: 0; text-align: right; }
-  .bar-track { flex: 1; height: 22px; background: var(--surface2); border-radius: 4px; overflow: hidden; position: relative; }
-  .bar-fill { height: 100%; border-radius: 4px; transition: width 0.4s ease; }
-  .bar-val { font-size: 11px; font-family: 'JetBrains Mono', monospace; color: var(--muted); width: 60px; text-align: right; flex-shrink: 0; }
-
-  /* Donut chart via SVG */
-  .donut-wrap { display: flex; align-items: center; gap: 24px; }
-  .donut-legend { display: flex; flex-direction: column; gap: 10px; flex: 1; }
-  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 12px; }
-  .legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
-  .legend-name { color: var(--muted); flex: 1; }
-  .legend-val { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text); }
-
-  /* ─── TABLE ─── */
-  .table-wrap { overflow-x: auto; }
-  table { width: 100%; border-collapse: collapse; }
-  thead tr { border-bottom: 1px solid var(--border); }
-  th {
-    padding: 10px 14px; font-size: 11px; font-weight: 600; color: var(--muted);
-    text-transform: uppercase; letter-spacing: 0.6px; text-align: left;
-    cursor: pointer; user-select: none; white-space: nowrap;
-  }
-  th:hover { color: var(--text); }
-  th.sorted { color: var(--accent); }
-  td { padding: 11px 14px; font-size: 13px; border-bottom: 1px solid rgba(37,42,58,0.7); vertical-align: middle; }
-  tr:hover td { background: rgba(255,255,255,0.02); }
-  tr:last-child td { border-bottom: none; }
-
-  .status-pill {
-    display: inline-flex; align-items: center; gap: 5px;
-    padding: 3px 9px; border-radius: 12px; font-size: 11px; font-weight: 600; white-space: nowrap;
-  }
-  .priority-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
-
-  .mono { font-family: 'JetBrains Mono', monospace; font-size: 12px; }
-
-  /* ─── PAGINATION ─── */
-  .pagination { display: flex; align-items: center; gap: 8px; justify-content: flex-end; padding-top: 16px; }
-  .page-info { font-size: 12px; color: var(--muted); margin-right: auto; }
-  .page-btn {
-    padding: 5px 12px; background: var(--surface2); border: 1px solid var(--border);
-    color: var(--text); border-radius: 6px; cursor: pointer; font-size: 12px;
-    transition: all 0.15s;
-  }
-  .page-btn:hover { border-color: var(--accent); color: var(--accent); }
-  .page-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
-  .page-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-
-  .empty-state { text-align: center; padding: 40px; color: var(--muted); font-size: 14px; }
-
-  /* ─── TOOLTIP ─── */
-  .tooltip {
-    position: fixed; background: #1e2433; border: 1px solid var(--border);
-    padding: 10px 14px; border-radius: 8px; font-size: 12px;
-    pointer-events: none; z-index: 1000; max-width: 260px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-    transition: opacity 0.1s;
-    opacity: 0;
-  }
-  .tooltip.visible { opacity: 1; }
-  .tooltip-title { font-weight: 600; color: var(--text); margin-bottom: 6px; line-height: 1.4; }
-  .tooltip-row { display: flex; justify-content: space-between; gap: 16px; color: var(--muted); }
-  .tooltip-row span:last-child { color: var(--text); font-family: 'JetBrains Mono', monospace; }
-
-  /* reset btn */
-  .reset-btn {
-    padding: 5px 12px; background: transparent; border: 1px solid var(--border);
-    color: var(--muted); border-radius: 6px; cursor: pointer; font-size: 12px;
-    font-family: inherit; transition: all 0.15s;
-  }
-  .reset-btn:hover { border-color: var(--paused); color: var(--paused); }
+  /* TABLE */
+  .table-wrap{overflow-x:auto}
+  table{width:100%;border-collapse:collapse}
+  thead tr{border-bottom:1px solid var(--border)}
+  th{padding:9px 13px;font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;text-align:left;cursor:pointer;user-select:none;white-space:nowrap}
+  th:hover{color:var(--text)}
+  th.sorted{color:var(--accent)}
+  td{padding:10px 13px;font-size:12px;border-bottom:1px solid rgba(37,42,58,0.7);vertical-align:middle}
+  tr:hover td{background:rgba(255,255,255,0.02)}
+  tr:last-child td{border-bottom:none}
+  .status-pill{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:12px;font-size:10px;font-weight:600;white-space:nowrap}
+  .priority-dot{width:7px;height:7px;border-radius:50%;display:inline-block}
+  .mono{font-family:'JetBrains Mono',monospace;font-size:11px}
+  .pagination{display:flex;align-items:center;gap:7px;justify-content:flex-end;padding-top:14px}
+  .page-info{font-size:11px;color:var(--muted);margin-right:auto}
+  .page-btn{padding:5px 11px;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:6px;cursor:pointer;font-size:11px;transition:all .15s}
+  .page-btn:hover{border-color:var(--accent);color:var(--accent)}
+  .page-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+  .page-btn:disabled{opacity:.3;cursor:not-allowed}
+  .empty-state{text-align:center;padding:40px;color:var(--muted);font-size:14px}
+  .tooltip{position:fixed;background:#1e2433;border:1px solid var(--border);padding:10px 14px;border-radius:8px;font-size:12px;pointer-events:none;z-index:1000;max-width:260px;box-shadow:0 8px 24px rgba(0,0,0,0.4);transition:opacity .1s;opacity:0}
+  .tooltip.visible{opacity:1}
+  .tooltip-title{font-weight:600;color:var(--text);margin-bottom:6px;line-height:1.4}
+  .tooltip-row{display:flex;justify-content:space-between;gap:16px;color:var(--muted)}
+  .tooltip-row span:last-child{color:var(--text);font-family:'JetBrains Mono',monospace}
+  .loading-overlay{position:fixed;inset:0;background:rgba(13,15,20,.85);display:flex;align-items:center;justify-content:center;z-index:999;flex-direction:column;gap:12px;font-size:13px;color:var(--muted)}
+  .spinner{width:32px;height:32px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
+
+<div id="loading-overlay" class="loading-overlay">
+  <div class="spinner"></div>
+  <span>Fetching live data from Google Sheets…</span>
+</div>
 
 <div class="tooltip" id="tooltip"></div>
 
@@ -243,34 +147,47 @@
 <div class="header">
   <div class="header-left">
     <h1>Marketing Budget Dashboard</h1>
-    <p>Cost Centre–Wise · June 2026 · <span id="total-count">187</span> campaigns across India & NRI</p>
+    <p>Cost Centre–Wise · June 2026 · <span id="total-count">—</span> campaigns across India & NRI</p>
   </div>
-  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-    <span class="badge badge-live"><span class="dot"></span> LIVE</span>
-    <span class="badge badge-tbl"><span class="dot"></span> TO BE LIVE</span>
-    <span class="badge badge-paused"><span class="dot"></span> PAUSED</span>
-    <span class="badge badge-new"><span class="dot"></span> NEW</span>
+  <div class="header-right">
+    <span id="data-badge" class="badge badge-unknown"><span class="dot"></span> Loading…</span>
+    <button class="refresh-btn" onclick="loadAllData()">⟳ Refresh</button>
+    <span class="badge badge-live"><span class="dot"></span>LIVE</span>
+    <span class="badge badge-tbl"><span class="dot"></span>TO BE LIVE</span>
+    <span class="badge badge-paused"><span class="dot"></span>PAUSED</span>
+    <span class="badge badge-new"><span class="dot"></span>NEW</span>
   </div>
 </div>
 
+<!-- DATA STATUS BAR -->
+<div class="status-bar">
+  <span id="status-indicator"><span class="status-dot dot-yellow"></span><span class="label">Fetching…</span></span>
+  <span class="label">Last updated:</span><span class="val" id="last-updated">—</span>
+  <span class="label">Campaigns sheet:</span><span class="val" id="camp-count">—</span>
+  <span class="label">Budget allocations:</span><span class="val" id="alloc-count">—</span>
+</div>
+
+<!-- BUDGET ALLOCATION ROW -->
+<div id="alloc-row" class="alloc-row"></div>
+
 <!-- KPI ROW -->
-<div class="kpi-row" id="kpi-row">
-  <div class="kpi" id="kpi-total" onclick="setStatusFilter('ALL')">
+<div class="kpi-row">
+  <div class="kpi" onclick="setStatusFilter('ALL')">
     <div class="kpi-label">Total Campaigns</div>
-    <div class="kpi-value" id="kv-total" style="color:var(--accent)">187</div>
+    <div class="kpi-value" id="kv-total" style="color:var(--accent)">—</div>
     <div class="kpi-sub">All statuses</div>
   </div>
-  <div class="kpi" id="kpi-live" onclick="setStatusFilter('LIVE')">
+  <div class="kpi" onclick="setStatusFilter('LIVE')">
     <div class="kpi-label">LIVE</div>
     <div class="kpi-value" id="kv-live" style="color:var(--live)">—</div>
     <div class="kpi-sub">Active campaigns</div>
   </div>
-  <div class="kpi" id="kpi-tbl" onclick="setStatusFilter('TO BE LIVE')">
+  <div class="kpi" onclick="setStatusFilter('TO BE LIVE')">
     <div class="kpi-label">To Be Live</div>
     <div class="kpi-value" id="kv-tbl" style="color:var(--tbl)">—</div>
     <div class="kpi-sub">Pending launch</div>
   </div>
-  <div class="kpi" id="kpi-paused" onclick="setStatusFilter('PAUSED')">
+  <div class="kpi" onclick="setStatusFilter('PAUSED')">
     <div class="kpi-label">Paused</div>
     <div class="kpi-value" id="kv-paused" style="color:var(--paused)">—</div>
     <div class="kpi-sub">Inactive</div>
@@ -278,7 +195,7 @@
   <div class="kpi">
     <div class="kpi-label">Total Budget</div>
     <div class="kpi-value" id="kv-budget" style="color:var(--accent)">—</div>
-    <div class="kpi-sub" id="kv-budget-sub">Filtered total</div>
+    <div class="kpi-sub">Filtered total</div>
   </div>
   <div class="kpi">
     <div class="kpi-label">Total Leads</div>
@@ -304,20 +221,16 @@
   </div>
   <div class="divider"></div>
   <span class="filter-label">LOCATION</span>
-  <select id="loc-filter" onchange="applyFilters()">
-    <option value="ALL">All Locations</option>
-  </select>
+  <select id="loc-filter" onchange="applyFilters()"><option value="ALL">All Locations</option></select>
   <span class="filter-label">PRIORITY</span>
   <select id="pri-filter" onchange="applyFilters()">
-    <option value="ALL">All Priorities</option>
+    <option value="ALL">All</option>
     <option value="High">High</option>
     <option value="Medium">Medium</option>
     <option value="Low">Low</option>
   </select>
   <span class="filter-label">SOURCE</span>
-  <select id="src-filter" onchange="applyFilters()">
-    <option value="ALL">All Sources</option>
-  </select>
+  <select id="src-filter" onchange="applyFilters()"><option value="ALL">All Sources</option></select>
   <div class="search-wrap">
     <input type="text" id="search-input" placeholder="Search project / cost centre…" oninput="applyFilters()">
   </div>
@@ -328,18 +241,11 @@
 <div class="main">
   <div class="charts-row">
     <div class="card">
-      <div class="card-header">
-        <span class="card-title">Budget by Location</span>
-        <span id="chart-filter-note" style="font-size:11px;color:var(--muted);"></span>
-      </div>
-      <div class="card-body">
-        <div class="bar-chart" id="location-bars"></div>
-      </div>
+      <div class="card-header"><span class="card-title">Budget by Location</span></div>
+      <div class="card-body"><div class="bar-chart" id="location-bars"></div></div>
     </div>
     <div class="card">
-      <div class="card-header">
-        <span class="card-title">Campaign Status Breakdown</span>
-      </div>
+      <div class="card-header"><span class="card-title">Campaign Status Breakdown</span></div>
       <div class="card-body">
         <div class="donut-wrap">
           <svg id="donut-svg" width="140" height="140" viewBox="0 0 140 140"></svg>
@@ -353,7 +259,7 @@
   <div class="card">
     <div class="card-header">
       <span class="card-title" id="table-title">All Campaigns</span>
-      <span id="result-count" style="font-size:12px;color:var(--muted);"></span>
+      <span id="result-count" style="font-size:11px;color:var(--muted)"></span>
     </div>
     <div class="table-wrap">
       <table>
@@ -373,11 +279,11 @@
         <tbody id="table-body"></tbody>
       </table>
     </div>
-    <div style="padding:12px 20px;border-top:1px solid var(--border);">
+    <div style="padding:11px 18px;border-top:1px solid var(--border)">
       <div class="pagination">
         <span class="page-info" id="page-info"></span>
         <button class="page-btn" id="btn-prev" onclick="changePage(-1)">← Prev</button>
-        <div id="page-buttons" style="display:flex;gap:4px;"></div>
+        <div id="page-buttons" style="display:flex;gap:4px"></div>
         <button class="page-btn" id="btn-next" onclick="changePage(1)">Next →</button>
       </div>
     </div>
@@ -385,40 +291,284 @@
 </div>
 
 <script>
-const RAW = [{"status":"LIVE","priority":"High","location":"PUNE","project":"Krisala Hiranandani Pune","leads":2000,"cpl":300,"budget":600000,"costCentre":"Amit Madan","source":"MV","remarks":""},{"status":"LIVE","priority":"Medium","location":"PUNE","project":"Birla Evam Pune","leads":500,"cpl":300,"budget":150000,"costCentre":"Amit Madan","source":"MV","remarks":""},{"status":"LIVE","priority":"High","location":"PUNE","project":"Birla Taranya Mumbai","leads":600,"cpl":300,"budget":180000,"costCentre":"Amit Madan","source":"MV","remarks":""},{"status":"LIVE","priority":"High","location":"PUNE","project":"Mahindra Sanctum pune (Pimpiri)","leads":1000,"cpl":300,"budget":300000,"costCentre":"Amit Madan","source":"MV","remarks":""},{"status":"LIVE","priority":"High","location":"PUNE","project":"Mahindra Mahalunge Pune","leads":500,"cpl":300,"budget":150000,"costCentre":"Amit Madan","source":"MV","remarks":""},{"status":"LIVE","priority":"High","location":"PUNE","project":"Krisala Aventis Pune","leads":300,"cpl":300,"budget":90000,"costCentre":"Amit Madan","source":"MV","remarks":""},{"status":"PAUSED","priority":"Low","location":"PUNE","project":"Shapoorji Pallonji Hinjewadi Pune","leads":0,"cpl":300,"budget":0,"costCentre":"Amit Madan","source":"MV","remarks":""},{"status":"LIVE","priority":"High","location":"PUNE","project":"Krisala Hiranandani Pune","leads":1000,"cpl":300,"budget":300000,"costCentre":"Amit Madan","source":"AJN","remarks":""},{"status":"PAUSED","priority":"Medium","location":"PUNE","project":"Birla Punya Pune","leads":150,"cpl":2000,"budget":300000,"costCentre":"Amit Madan","source":"GT, GTAW & ND","remarks":""},{"status":"TO BE LIVE","priority":"High","location":"PUNE","project":"Birla Taranya Mumbai","leads":150,"cpl":2000,"budget":300000,"costCentre":"Amit Madan","source":"DEV","remarks":""},{"status":"LIVE","priority":"High","location":"Gurugram","project":"M3M & SMARTWORLD GIC Gurugram","leads":75,"cpl":2000,"budget":150000,"costCentre":"Birjesh Gurugram","source":"GTPL","remarks":""},{"status":"LIVE","priority":"High","location":"Gurugram","project":"M3M Forestia West Gurugram","leads":75,"cpl":2000,"budget":150000,"costCentre":"Birjesh Gurugram","source":"GT","remarks":""},{"status":"LIVE","priority":"High","location":"Gurugram","project":"Signature Global Tonino Lamborghini Residences Gurugram","leads":150,"cpl":2000,"budget":300000,"costCentre":"Birjesh Gurugram","source":"GT","remarks":""},{"status":"TO BE LIVE","priority":"Medium","location":"Gurugram","project":"Verified leads - 99 Acres","leads":0,"cpl":0,"budget":0,"costCentre":"Birjesh Gurugram","source":"99 Acres","remarks":""},{"status":"TO BE LIVE","priority":"Medium","location":"Gurugram","project":"Verified leads - PPC","leads":250,"cpl":400,"budget":100000,"costCentre":"Birjesh Gurugram","source":"PPC","remarks":""},{"status":"LIVE","priority":"High","location":"Gurugram","project":"Signature Global Tonino Lamborghini Residences Gurugram","leads":75,"cpl":200,"budget":15000,"costCentre":"Birjesh Gurugram","source":"MV","remarks":""},{"status":"LIVE","priority":"High","location":"Gurugram","project":"Signature Global City 37D Gurugram","leads":75,"cpl":200,"budget":15000,"costCentre":"Birjesh Gurugram","source":"MV","remarks":""},{"status":"LIVE","priority":"High","location":"Gurugram","project":"M3M Antalya Hills Gurugram","leads":75,"cpl":200,"budget":15000,"costCentre":"Birjesh Gurugram","source":"DMXD","remarks":""},{"status":"LIVE","priority":"High","location":"Mumbai","project":"JP Infra The Starlife Mumbai","leads":700,"cpl":300,"budget":210000,"costCentre":"Mayank","source":"MV","remarks":""},{"status":"LIVE","priority":"High","location":"Mumbai","project":"Mahindra Rainforest Mumbai","leads":700,"cpl":300,"budget":210000,"costCentre":"Mayank","source":"MV","remarks":""},{"status":"TO BE LIVE","priority":"High","location":"Mumbai","project":"Mahindra Rainforest Mumbai","leads":200,"cpl":600,"budget":120000,"costCentre":"Mayank","source":"Monk","remarks":""},{"status":"LIVE","priority":"High","location":"Mumbai","project":"Mahindra Rainforest Mumbai","leads":100,"cpl":600,"budget":60000,"costCentre":"Mayank","source":"DMXD","remarks":""},{"status":"LIVE","priority":"High","location":"Delhi","project":"Omaxe Chandni Chowk Delhi","leads":500,"cpl":400,"budget":200000,"costCentre":"Biswajit Delhi","source":"DMXD","remarks":""},{"status":"LIVE","priority":"High","location":"Delhi","project":"Omaxe State Dwarka Delhi","leads":300,"cpl":400,"budget":120000,"costCentre":"Biswajit Delhi","source":"DMXD","remarks":""},{"status":"LIVE","priority":"High","location":"Delhi","project":"Omaxe State Dwarka Delhi","leads":200,"cpl":300,"budget":60000,"costCentre":"Biswajit Delhi","source":"AJN","remarks":""},{"status":"LIVE","priority":"High","location":"Delhi","project":"Omaxe Chandni Chowk Delhi","leads":300,"cpl":200,"budget":60000,"costCentre":"Biswajit Delhi","source":"AJN","remarks":""},{"status":"LIVE","priority":"High","location":"Delhi","project":"Omaxe Chandni Chowk Delhi","leads":90,"cpl":1500,"budget":135000,"costCentre":"Biswajit Delhi","source":"GT","remarks":""},{"status":"LIVE","priority":"High","location":"Delhi","project":"Omaxe State Delhi","leads":100,"cpl":1500,"budget":150000,"costCentre":"Biswajit Delhi","source":"GT","remarks":""},{"status":"LIVE","priority":"High","location":"Noida","project":"AU Cosmos Corner Ghaziabad","leads":400,"cpl":400,"budget":160000,"costCentre":"Uday Noida","source":"DMXD","remarks":""},{"status":"LIVE","priority":"Medium","location":"Noida","project":"Palm Olympia Noida","leads":90,"cpl":2000,"budget":180000,"costCentre":"Uday Noida","source":"XD & XDD","remarks":""},{"status":"LIVE","priority":"Medium","location":"Noida","project":"Palm Olympia Noida","leads":150,"cpl":400,"budget":60000,"costCentre":"Uday Noida","source":"DMXD","remarks":""},{"status":"LIVE","priority":"Medium","location":"Noida","project":"CRC Joyous Noida","leads":150,"cpl":400,"budget":60000,"costCentre":"Uday Noida","source":"DMXD","remarks":""},{"status":"LIVE","priority":"Medium","location":"Noida","project":"CRC Maesta Noida","leads":150,"cpl":400,"budget":60000,"costCentre":"Uday Noida","source":"DMXD","remarks":""},{"status":"LIVE","priority":"Low","location":"Noida","project":"Ashtech Presidential Tower Noida","leads":150,"cpl":400,"budget":60000,"costCentre":"Uday Noida","source":"DMXD","remarks":""},{"status":"LIVE","priority":"Low","location":"Noida","project":"Verified Lead vendor","leads":250,"cpl":400,"budget":100000,"costCentre":"Uday Noida","source":"PPC","remarks":""},{"status":"TO BE LIVE","priority":"Low","location":"Noida","project":"Project listing (400 Count)","leads":0,"cpl":0,"budget":189000,"costCentre":"Pulkit Noida","source":"99 Acres","remarks":""},{"status":"TO BE LIVE","priority":"Low","location":"Noida","project":"AD Star projects (Tentative)","leads":200,"cpl":400,"budget":80000,"costCentre":"Pulkit Noida","source":"99 Acres","remarks":""},{"status":"LIVE","priority":"High","location":"Noida","project":"AU Cosmos Corner Ghaziabad","leads":400,"cpl":300,"budget":120000,"costCentre":"Uday Noida","source":"AJN","remarks":""},{"status":"LIVE","priority":"Medium","location":"Noida","project":"Gaur Bento Noida","leads":200,"cpl":300,"budget":60000,"costCentre":"Birjesh Noida","source":"DMXD","remarks":""},{"status":"LIVE","priority":"High","location":"Noida","project":"Eldeco Echoes of Eden Noida","leads":200,"cpl":300,"budget":60000,"costCentre":"Punit Sethia","source":"DMXD","remarks":""},{"status":"LIVE","priority":"High","location":"Noida","project":"Eldeco Echoes of Eden Noida","leads":200,"cpl":2000,"budget":400000,"costCentre":"Punit Sethia","source":"XD & XDD","remarks":""},{"status":"LIVE","priority":"High","location":"Noida","project":"Eldeco 7 Peaks Noida","leads":200,"cpl":300,"budget":60000,"costCentre":"Punit Sethia","source":"DMXD","remarks":""},{"status":"LIVE","priority":"High","location":"Noida","project":"Eldeco 7 Peaks Noida","leads":150,"cpl":2000,"budget":300000,"costCentre":"Punit Sethia","source":"XD & XDD","remarks":""},{"status":"LIVE","priority":"Low","location":"Noida","project":"Gaur Chrysalis Noida","leads":300,"cpl":300,"budget":90000,"costCentre":"Birjesh Noida","source":"DMXD","remarks":""},{"status":"LIVE","priority":"Low","location":"Noida","project":"Arihant Seasons Noida","leads":300,"cpl":300,"budget":90000,"costCentre":"Birjesh Noida","source":"DMXD","remarks":""},{"status":"LIVE","priority":"Medium","location":"Noida","project":"M3M PLATTER NOIDA","leads":75,"cpl":2500,"budget":187500,"costCentre":"Punit Sethia, Pulkit, Chetan Gulati","source":"GTPL/GTAW","remarks":""},{"status":"LIVE","priority":"Medium","location":"Noida","project":"SMARTWORLD PLATTER NOIDA","leads":75,"cpl":2500,"budget":187500,"costCentre":"Punit Sethia, Pulkit, Chetan Gulati","source":"GTPL/GTAW","remarks":""},{"status":"LIVE","priority":"Medium","location":"Noida","project":"SMARTWORLD Elie Saab Noida","leads":100,"cpl":500,"budget":50000,"costCentre":"Chetan Gulati","source":"AJN","remarks":""},{"status":"LIVE","priority":"Medium","location":"Noida","project":"SMARTWORLD Elie Saab Noida","leads":100,"cpl":500,"budget":50000,"costCentre":"Pulkit Dhuria","source":"MV","remarks":""},{"status":"LIVE","priority":"Medium","location":"Noida","project":"SMARTWORLD Elie Saab Noida","leads":100,"cpl":500,"budget":50000,"costCentre":"Punit sethia","source":"DMXD","remarks":""},{"status":"LIVE","priority":"Medium","location":"Noida","project":"Skytech Colours Avenue Noida","leads":200,"cpl":1500,"budget":300000,"costCentre":"Birjesh, Srivastava & Punit Sethia","source":"XD & XDD","remarks":""},{"status":"LIVE","priority":"Medium","location":"Noida","project":"Skytech Colours Avenue Noida","leads":200,"cpl":300,"budget":60000,"costCentre":"Birjesh, Srivastava & Punit Sethia","source":"DMXD","remarks":""},{"status":"LIVE","priority":"Medium","location":"Noida","project":"Skytech Colours Avenue Noida","leads":200,"cpl":300,"budget":60000,"costCentre":"Birjesh, Srivastava","source":"AJN","remarks":""},{"status":"LIVE","priority":"High","location":"Noida","project":"Eldeco Echoes of Eden Noida","leads":200,"cpl":300,"budget":60000,"costCentre":"Punit Sethia","source":"AJN","remarks":""},{"status":"LIVE","priority":"High","location":"Noida","project":"Eldeco 7 Peaks Noida","leads":200,"cpl":300,"budget":60000,"costCentre":"Punit Sethia","source":"AJN","remarks":""},{"status":"LIVE","priority":"High","location":"Noida","project":"Eldeco Echoes of Eden Noida","leads":200,"cpl":300,"budget":60000,"costCentre":"Punit Sethia","source":"MV","remarks":""},{"status":"LIVE","priority":"High","location":"Noida","project":"Eldeco 7 Peaks Noida","leads":200,"cpl":300,"budget":60000,"costCentre":"Punit Sethia","source":"MV","remarks":""},{"status":"LIVE","priority":"Low","location":"NRI","project":"Birla Punya Pune NRI","leads":25,"cpl":2500,"budget":62500,"costCentre":"Sanjiv Dubai","source":"GT ,GTPL, ND & GTAW","remarks":""},{"status":"LIVE","priority":"Low","location":"NRI","project":"Birla Taranya Mumbai NRI","leads":25,"cpl":2500,"budget":62500,"costCentre":"Sanjiv Dubai","source":"GT ,GTPL, ND & GTAW","remarks":""},{"status":"LIVE","priority":"High","location":"NRI","project":"Puravankara Northern Lights Bangalore NRI","leads":25,"cpl":2500,"budget":62500,"costCentre":"Sanjiv Dubai","source":"GT ,GTPL, ND & GTAW","remarks":""},{"status":"LIVE","priority":"Low","location":"NRI","project":"Puravankara Silver Sky Bangalore NRI","leads":25,"cpl":2500,"budget":62500,"costCentre":"Sanjiv Dubai","source":"GT ,GTPL, ND & GTAW","remarks":""},{"status":"LIVE","priority":"Low","location":"NRI","project":"Brigade Enclave Hyderabad NRI","leads":25,"cpl":2500,"budget":62500,"costCentre":"Sanjiv Dubai","source":"GT ,GTPL, ND & GTAW","remarks":""},{"status":"LIVE","priority":"High","location":"NRI","project":"Birla Trimaya Bangalore NRI","leads":25,"cpl":2500,"budget":62500,"costCentre":"Sanjiv Dubai","source":"GT ,GTPL, ND & GTAW","remarks":""},{"status":"LIVE","priority":"High","location":"NRI","project":"Birla Evara Bangalore NRI","leads":25,"cpl":2500,"budget":62500,"costCentre":"Sanjiv Dubai","source":"GT ,GTPL, ND & GTAW","remarks":""},{"status":"LIVE","priority":"High","location":"NRI","project":"Puravankara Hennur Bangalore NRI","leads":25,"cpl":2500,"budget":62500,"costCentre":"Sanjiv Dubai","source":"GT ,GTPL, ND & GTAW","remarks":""},{"status":"PAUSED","priority":"Low","location":"NRI","project":"Brigade Lumina Bangalore NRI","leads":25,"cpl":2500,"budget":62500,"costCentre":"Sanjiv Dubai","source":"GT ,GTPL, ND & GTAW","remarks":""},{"status":"LIVE","priority":"Low","location":"NRI","project":"Brigade Lakecrest Bangalore NRI","leads":25,"cpl":2500,"budget":62500,"costCentre":"Sanjiv Dubai","source":"GT ,GTPL, ND & GTAW","remarks":""},{"status":"LIVE","priority":"Low","location":"NRI","project":"Hiranandani Fortune City Mumbai NRI","leads":25,"cpl":2500,"budget":62500,"costCentre":"Sanjiv Dubai","source":"GT ,GTPL, ND & GTAW","remarks":""},{"status":"PAUSED","priority":"Unknown","location":"NRI","project":"Bhatiya garden estate Bangalore NRI","leads":25,"cpl":2500,"budget":62500,"costCentre":"Sanjiv Dubai","source":"GT ,GTPL, ND & GTAW","remarks":""},{"status":"PAUSED","priority":"Unknown","location":"NRI","project":"Kalyani living trees Bangalore NRI","leads":25,"cpl":2500,"budget":62500,"costCentre":"Sanjiv Dubai","source":"GT ,GTPL, ND & GTAW","remarks":""},{"status":"LIVE","priority":"High","location":"NRI","project":"TVS Altora Bangalore NRI","leads":25,"cpl":2500,"budget":62500,"costCentre":"Sanjiv Dubai","source":"GT ,GTPL, ND & GTAW","remarks":""},{"status":"LIVE","priority":"Medium","location":"NRI","project":"Birla Evam Pune NRI","leads":25,"cpl":2500,"budget":62500,"costCentre":"Sanjiv Dubai","source":"GT ,GTPL, ND & GTAW","remarks":""},{"status":"LIVE","priority":"High","location":"NRI","project":"L&T Crestoria Mumbai NRI","leads":25,"cpl":2500,"budget":62500,"costCentre":"Sanjiv Dubai","source":"GT ,GTPL, ND & GTAW","remarks":""},{"status":"LIVE","priority":"Low","location":"NRI","project":"Brigade Altius Chennai NRI","leads":25,"cpl":2500,"budget":62500,"costCentre":"Sanjiv Dubai","source":"GT ,GTPL, ND & GTAW","remarks":""},{"status":"LIVE","priority":"High","location":"NRI","project":"Prestige Golden Grove Hyderabad NRI","leads":25,"cpl":2500,"budget":62500,"costCentre":"Sanjiv Dubai","source":"GT ,GTPL, ND & GTAW","remarks":""},{"status":"LIVE","priority":"High","location":"NRI","project":"Brigade Manor Hyderabad NRI","leads":25,"cpl":2500,"budget":62500,"costCentre":"Sanjiv Dubai","source":"GT ,GTPL, ND & GTAW","remarks":""},{"status":"LIVE","priority":"Low","location":"NRI","project":"L&T Panvel NRI","leads":150,"cpl":300,"budget":45000,"costCentre":"Sanjiv Dubai","source":"GT ,GTPL, ND & GTAW","remarks":""},{"status":"LIVE","priority":"Low","location":"NRI","project":"Birla Evam Pune NRI","leads":150,"cpl":2500,"budget":375000,"costCentre":"Sanjiv Dubai","source":"GT ,GTPL, ND & GTAW","remarks":""},{"status":"NEW","priority":"High","location":"NRI","project":"Brigade Belvedere Bangalore NRI","leads":150,"cpl":2500,"budget":375000,"costCentre":"Sanjiv Dubai","source":"GT ,GTPL, ND & GTAW","remarks":""},{"status":"LIVE","priority":"Low","location":"NRI","project":"L&T Crestoria Mumbai NRI","leads":300,"cpl":300,"budget":90000,"costCentre":"Sanjiv Dubai","source":"Meta MV","remarks":""},{"status":"LIVE","priority":"Medium","location":"NRI","project":"L&T Panvel NRI","leads":300,"cpl":300,"budget":90000,"costCentre":"Sanjiv Dubai","source":"Meta MV","remarks":""},{"status":"LIVE","priority":"Medium","location":"NRI","project":"Hiranandani Fortune City Mumbai NRI","leads":300,"cpl":300,"budget":90000,"costCentre":"Sanjiv Dubai","source":"Meta MV","remarks":""},{"status":"LIVE","priority":"High","location":"NRI","project":"Purva Vajrahalli Bangalore NRI","leads":300,"cpl":300,"budget":90000,"costCentre":"Sanjiv Dubai","source":"Meta MV","remarks":""},{"status":"LIVE","priority":"High","location":"NRI","project":"Puravankara Event NRI","leads":300,"cpl":300,"budget":90000,"costCentre":"Sanjiv Dubai","source":"Meta MV","remarks":""},{"status":"LIVE","priority":"High","location":"NRI","project":"Brigade Platter NRI","leads":60,"cpl":2500,"budget":150000,"costCentre":"Sanjiv Dubai","source":"XDPL","remarks":""},{"status":"LIVE","priority":"High","location":"NRI","project":"Puravankara Platter NRI","leads":60,"cpl":2500,"budget":150000,"costCentre":"Sanjiv Dubai","source":"XDPL","remarks":""},{"status":"LIVE","priority":"High","location":"NRI","project":"Birla Platter NRI","leads":60,"cpl":2500,"budget":150000,"costCentre":"Sanjiv Dubai","source":"XDPL","remarks":""},{"status":"LIVE","priority":"High","location":"NRI","project":"TVS Platter","leads":60,"cpl":2500,"budget":150000,"costCentre":"Sanjiv Dubai","source":"XDPL","remarks":""},{"status":"LIVE","priority":"High","location":"NRI","project":"Prestige Platter","leads":60,"cpl":2500,"budget":150000,"costCentre":"Sanjiv Dubai","source":"XDPL","remarks":""},{"status":"LIVE","priority":"High","location":"Kolkata","project":"DTC Downtown Rajarhat Kolkata","leads":75,"cpl":1500,"budget":112500,"costCentre":"Santanu Kolkata","source":"GT & ND","remarks":""},{"status":"LIVE","priority":"High","location":"Kolkata","project":"DTC SOJAN KOLKATA","leads":75,"cpl":1500,"budget":112500,"costCentre":"Santanu Kolkata","source":"GT & ND","remarks":""},{"status":"LIVE","priority":"Medium","location":"Kolkata","project":"DTC Still Waters Kolkata","leads":75,"cpl":1500,"budget":112500,"costCentre":"Santanu Kolkata","source":"GT & ND","remarks":""},{"status":"LIVE","priority":"High","location":"Kolkata","project":"Vinayak 21 Acres Kolkata","leads":75,"cpl":1500,"budget":112500,"costCentre":"Santanu Kolkata","source":"GT & ND","remarks":""},{"status":"TO BE LIVE","priority":"Medium","location":"Kolkata","project":"Srijan Spacia Kolkata","leads":75,"cpl":1500,"budget":112500,"costCentre":"Santanu Kolkata","source":"GT & ND","remarks":""},{"status":"PAUSED","priority":"Unknown","location":"Kolkata","project":"Srijan Optima Kolkata","leads":75,"cpl":1500,"budget":112500,"costCentre":"Santanu Kolkata","source":"GT & ND","remarks":""},{"status":"LIVE","priority":"Medium","location":"Kolkata","project":"Verified Lead Vendor","leads":250,"cpl":400,"budget":100000,"costCentre":"Santanu Kolkata","source":"PPC","remarks":""},{"status":"LIVE","priority":"High","location":"Kolkata","project":"DTC Downtown Rajarhat Kolkata","leads":300,"cpl":250,"budget":75000,"costCentre":"Santanu Kolkata","source":"AJN","remarks":""},{"status":"TO BE LIVE","priority":"Unknown","location":"Kolkata","project":"Verified leads - 99 Acres","leads":0,"cpl":0,"budget":0,"costCentre":"Santanu Kolkata","source":"99 acres","remarks":""},{"status":"LIVE","priority":"High","location":"Chennai","project":"Prestige Pallavaram Gardens Chennai","leads":150,"cpl":300,"budget":45000,"costCentre":"Santanu Chennai","source":"AJN","remarks":""},{"status":"LIVE","priority":"Medium","location":"Chennai","project":"Purva Windermere Chennai","leads":150,"cpl":300,"budget":45000,"costCentre":"Santanu Chennai","source":"AJN","remarks":""},{"status":"LIVE","priority":"High","location":"Chennai","project":"Brigade Altius Chennai","leads":150,"cpl":300,"budget":45000,"costCentre":"Santanu Chennai","source":"MV","remarks":""},{"status":"LIVE","priority":"High","location":"Chennai","project":"Brigade Stellaris Chennai","leads":150,"cpl":300,"budget":45000,"costCentre":"Santanu Chennai","source":"MV","remarks":""},{"status":"LIVE","priority":"High","location":"Chennai","project":"Prestige Pallavaram Gardens Chennai","leads":150,"cpl":300,"budget":45000,"costCentre":"Santanu Chennai","source":"MV","remarks":""},{"status":"LIVE","priority":"Medium","location":"Chennai","project":"Purva Windermere Chennai","leads":150,"cpl":300,"budget":45000,"costCentre":"Santanu Chennai","source":"MV","remarks":""},{"status":"LIVE","priority":"Medium","location":"Chennai","project":"Brigde Icon Chennai","leads":150,"cpl":300,"budget":45000,"costCentre":"Santanu Chennai","source":"MV","remarks":""},{"status":"TO BE LIVE","priority":"Unknown","location":"Chennai","project":"TVS Pallavaram Chennai","leads":150,"cpl":300,"budget":45000,"costCentre":"Santanu Chennai","source":"MV","remarks":""},{"status":"TO BE LIVE","priority":"Unknown","location":"Chennai","project":"Brigade Altius Chennai","leads":100,"cpl":1500,"budget":150000,"costCentre":"Santanu Chennai","source":"ND","remarks":""},{"status":"TO BE LIVE","priority":"Unknown","location":"Chennai","project":"Brigade Stellaris Chennai","leads":100,"cpl":1500,"budget":150000,"costCentre":"Santanu Chennai","source":"ND","remarks":""},{"status":"TO BE LIVE","priority":"Unknown","location":"Chennai","project":"Prestige Pallavaram Gardens Chennai","leads":100,"cpl":1500,"budget":150000,"costCentre":"Santanu Chennai","source":"ND","remarks":""},{"status":"TO BE LIVE","priority":"Unknown","location":"Chennai","project":"Purva Windermere Chennai","leads":100,"cpl":1500,"budget":150000,"costCentre":"Santanu Chennai","source":"ND","remarks":""},{"status":"TO BE LIVE","priority":"Unknown","location":"Chennai","project":"Brigde Icon Chennai","leads":100,"cpl":1500,"budget":150000,"costCentre":"Santanu Chennai","source":"ND","remarks":""},{"status":"TO BE LIVE","priority":"Unknown","location":"Chennai","project":"TVS Pallavaram Chennai","leads":100,"cpl":1500,"budget":150000,"costCentre":"Santanu Chennai","source":"ND","remarks":""},{"status":"TO BE LIVE","priority":"High","location":"Hyderabad","project":"Verified Lead Vendor","leads":300,"cpl":2000,"budget":600000,"costCentre":"Santanu HYD","source":"99 acres","remarks":""},{"status":"TO BE LIVE","priority":"High","location":"Hyderabad","project":"Verified Lead Vendor","leads":300,"cpl":2000,"budget":600000,"costCentre":"Santanu HYD","source":"PWL","remarks":""},{"status":"LIVE","priority":"Unknown","location":"Hyderabad","project":"Verified Lead Vendor","leads":250,"cpl":300,"budget":75000,"costCentre":"Santanu HYD","source":"PPC","remarks":""},{"status":"LIVE","priority":"High","location":"Hyderabad","project":"Prestige Golden Grove Hyderabad","leads":250,"cpl":300,"budget":75000,"costCentre":"Santanu HYD","source":"MV","remarks":""},{"status":"LIVE","priority":"High","location":"Hyderabad","project":"Prestige Golden Grove Hyderabad","leads":250,"cpl":400,"budget":100000,"costCentre":"Santanu HYD","source":"DMXD","remarks":""},{"status":"LIVE","priority":"High","location":"Hyderabad","project":"Prestige City Hyderabad","leads":300,"cpl":400,"budget":120000,"costCentre":"Santanu HYD","source":"MV","remarks":""},{"status":"LIVE","priority":"High","location":"Hyderabad","project":"Prestige City Hyderabad","leads":300,"cpl":500,"budget":150000,"costCentre":"Santanu HYD","source":"DMXD","remarks":""},{"status":"LIVE","priority":"High","location":"Hyderabad","project":"Prestige City Hyderabad","leads":150,"cpl":2000,"budget":300000,"costCentre":"Santanu HYD","source":"XD & XDD","remarks":""},{"status":"LIVE","priority":"High","location":"Hyderabad","project":"Prestige Golden Grove Hyderabad","leads":150,"cpl":2000,"budget":300000,"costCentre":"Santanu HYD","source":"XD & XDD","remarks":""},{"status":"TO BE LIVE","priority":"Medium","location":"Hyderabad","project":"Brigade Gateway Hyderabad","leads":200,"cpl":300,"budget":60000,"costCentre":"Santanu HYD","source":"MV","remarks":""},{"status":"TO BE LIVE","priority":"High","location":"Hyderabad","project":"Brigade Manor Hyderabad","leads":200,"cpl":300,"budget":60000,"costCentre":"Santanu HYD","source":"MV","remarks":""},{"status":"TO BE LIVE","priority":"Medium","location":"Hyderabad","project":"Brigade Enclave Hyderabad","leads":200,"cpl":300,"budget":60000,"costCentre":"Santanu HYD","source":"MV","remarks":""},{"status":"TO BE LIVE","priority":"High","location":"Hyderabad","project":"MSN Neopolis Hyderabad","leads":200,"cpl":300,"budget":60000,"costCentre":"Santanu HYD","source":"MV","remarks":""},{"status":"TO BE LIVE","priority":"Medium","location":"Hyderabad","project":"Urbanrise world of Joy Hyderabad","leads":200,"cpl":300,"budget":60000,"costCentre":"Santanu HYD","source":"MV","remarks":""},{"status":"LIVE","priority":"High","location":"Bangalore","project":"Birla Evara Bangalore (3BHK 4BHK FOCUS)","leads":120,"cpl":2500,"budget":300000,"costCentre":"Santanu Bangalore","source":"GT & ND","remarks":""},{"status":"LIVE","priority":"Medium","location":"Bangalore","project":"Bhatiya garden estate Bangalore","leads":75,"cpl":2500,"budget":187500,"costCentre":"Santanu Bangalore","source":"GT & ND","remarks":""},{"status":"LIVE","priority":"High","location":"Bangalore","project":"Puravankara Northern Lights Bangalore (FOCUS)","leads":120,"cpl":2500,"budget":300000,"costCentre":"Santanu Bangalore","source":"GT & ND","remarks":""},{"status":"LIVE","priority":"Low","location":"Bangalore","project":"Kalyani living trees Bangalore","leads":75,"cpl":2500,"budget":187500,"costCentre":"Santanu Bangalore","source":"GT & ND","remarks":""},{"status":"LIVE","priority":"High","location":"Bangalore","project":"BRIGADE BELVEDERE BANGALORE (FOCUS)","leads":120,"cpl":2500,"budget":300000,"costCentre":"Santanu Bangalore","source":"GT & ND","remarks":""},{"status":"LIVE","priority":"High","location":"Bangalore","project":"Puravankara Hannur Road Bangalore (FOCUS)","leads":120,"cpl":2500,"budget":300000,"costCentre":"Santanu Bangalore","source":"GT & ND","remarks":""},{"status":"LIVE","priority":"High","location":"Bangalore","project":"Birla Platter Bangalore (FOCUS)","leads":75,"cpl":2500,"budget":187500,"costCentre":"Santanu Bangalore","source":"GTPL","remarks":""},{"status":"LIVE","priority":"Medium","location":"Bangalore","project":"Bhartiya platter bangalore","leads":75,"cpl":2500,"budget":187500,"costCentre":"Santanu Bangalore","source":"GTPL","remarks":""},{"status":"LIVE","priority":"High","location":"Bangalore","project":"Puravankara Platter Bangalore (FOCUS)","leads":75,"cpl":2500,"budget":187500,"costCentre":"Santanu Bangalore","source":"GTPL","remarks":""},{"status":"LIVE","priority":"High","location":"Bangalore","project":"TVS Altora Bangalore (FOCUS)","leads":120,"cpl":2500,"budget":300000,"costCentre":"Santanu Bangalore","source":"GT & ND","remarks":""},{"status":"LIVE","priority":"Medium","location":"Bangalore","project":"Brigade Laurel & Maple bangalore","leads":120,"cpl":2500,"budget":300000,"costCentre":"Santanu Bangalore","source":"GT & ND","remarks":""},{"status":"LIVE","priority":"High","location":"Bangalore","project":"Bhartiya Garden Enclave Phase 1 Bangalore (FOCUS)","leads":120,"cpl":2500,"budget":300000,"costCentre":"Santanu Bangalore","source":"GT & ND","remarks":""},{"status":"LIVE","priority":"High","location":"Bangalore","project":"Sobha one world Bangalore","leads":120,"cpl":2500,"budget":300000,"costCentre":"Santanu Bangalore","source":"GT & ND","remarks":""},{"status":"LIVE","priority":"Low","location":"Bangalore","project":"Bhartiya Nikoo Homes 5 Bangalore","leads":120,"cpl":2500,"budget":300000,"costCentre":"Santanu Bangalore","source":"GT & ND","remarks":""},{"status":"LIVE","priority":"High","location":"Bangalore","project":"Provident Sunworth City Bangalore","leads":120,"cpl":2500,"budget":300000,"costCentre":"Santanu Bangalore","source":"GT & ND","remarks":""},{"status":"LIVE","priority":"High","location":"Bangalore","project":"Purva Vajrahalli Bangalore","leads":120,"cpl":2500,"budget":300000,"costCentre":"Santanu Bangalore","source":"GT & ND","remarks":""},{"status":"LIVE","priority":"Medium","location":"Bangalore","project":"Brigade Eternia Bangalore","leads":120,"cpl":2500,"budget":300000,"costCentre":"Santanu Bangalore","source":"GT & ND","remarks":""},{"status":"LIVE","priority":"High","location":"Bangalore","project":"Puravankara Northern Lights Bangalore","leads":120,"cpl":500,"budget":60000,"costCentre":"Santanu Bangalore","source":"DMXD","remarks":""},{"status":"LIVE","priority":"High","location":"Bangalore","project":"BRIGADE BELVEDERE BANGALORE","leads":120,"cpl":500,"budget":60000,"costCentre":"Santanu Bangalore","source":"DMXD","remarks":""},{"status":"LIVE","priority":"High","location":"Bangalore","project":"Purva Silver Sky Bangalore","leads":120,"cpl":500,"budget":60000,"costCentre":"Santanu Bangalore","source":"DMXD","remarks":""},{"status":"LIVE","priority":"High","location":"Bangalore","project":"Puravankara Northern Lights Bangalore (FOCUS)","leads":120,"cpl":400,"budget":48000,"costCentre":"Santanu Bangalore","source":"MV","remarks":""},{"status":"LIVE","priority":"Medium","location":"Bangalore","project":"Bhatiya garden estate Bangalore","leads":120,"cpl":400,"budget":48000,"costCentre":"Santanu Bangalore","source":"MV","remarks":""},{"status":"TO BE LIVE","priority":"High","location":"Bangalore","project":"Purva Westend Bangalore","leads":120,"cpl":400,"budget":48000,"costCentre":"Santanu Bangalore","source":"MV","remarks":""},{"status":"LIVE","priority":"Low","location":"Bangalore","project":"Brigade lakecrest Bangalore (PROXI)","leads":120,"cpl":400,"budget":48000,"costCentre":"Santanu Bangalore","source":"MV","remarks":""},{"status":"LIVE","priority":"Low","location":"Bangalore","project":"Brigade Citrine Bangalore (PROXI)","leads":120,"cpl":400,"budget":48000,"costCentre":"Santanu Bangalore","source":"MV","remarks":""},{"status":"LIVE","priority":"Medium","location":"Bangalore","project":"Sobha one world Bangalore","leads":120,"cpl":400,"budget":48000,"costCentre":"Santanu Bangalore","source":"MV","remarks":""},{"status":"LIVE","priority":"High","location":"Bangalore","project":"Bhartiya Garden Enclave Phase 1 Bangalore","leads":120,"cpl":400,"budget":48000,"costCentre":"Santanu Bangalore","source":"MV","remarks":""},{"status":"LIVE","priority":"High","location":"Bangalore","project":"TVS Altora Bangalore (FOCUS)","leads":120,"cpl":400,"budget":48000,"costCentre":"Santanu Bangalore","source":"MV","remarks":""},{"status":"LIVE","priority":"High","location":"Bangalore","project":"Mana – The Right Life (East Bangalore)","leads":120,"cpl":400,"budget":48000,"costCentre":"Santanu Bangalore","source":"MV","remarks":""},{"status":"LIVE","priority":"Unknown","location":"Noida","project":"Great Value Eternia Noida","leads":150,"cpl":400,"budget":60000,"costCentre":"Pulkit Dhuria & Chetan Gulati","source":"DMXD","remarks":""},{"status":"LIVE","priority":"Unknown","location":"Chennai","project":"Brigde Icon Chennai","leads":150,"cpl":300,"budget":45000,"costCentre":"Santanu Chennai","source":"AJN","remarks":""},{"status":"LIVE","priority":"Unknown","location":"Chennai","project":"Brigade Stellaris Chennai","leads":150,"cpl":300,"budget":45000,"costCentre":"Santanu Chennai","source":"AJN","remarks":""},{"status":"LIVE","priority":"Unknown","location":"Chennai","project":"Brigade Altius Chennai","leads":150,"cpl":300,"budget":45000,"costCentre":"Santanu Chennai","source":"AJN","remarks":""},{"status":"LIVE","priority":"Unknown","location":"Kolkata","project":"Srijan Spacia Kolkata","leads":200,"cpl":250,"budget":50000,"costCentre":"Santanu Kolkata","source":"AJN","remarks":""},{"status":"LIVE","priority":"Unknown","location":"Kolkata","project":"Srijan Spacia Kolkata","leads":200,"cpl":250,"budget":50000,"costCentre":"Santanu Kolkata","source":"GT & ND","remarks":""},{"status":"LIVE","priority":"Unknown","location":"Kolkata","project":"Siddha Serena Kolkata","leads":200,"cpl":250,"budget":50000,"costCentre":"Santanu Kolkata","source":"GT & ND","remarks":""},{"status":"LIVE","priority":"Unknown","location":"Kolkata","project":"Srijan Town Square Kolkata","leads":200,"cpl":250,"budget":50000,"costCentre":"Santanu Kolkata","source":"AJN","remarks":""},{"status":"PAUSED","priority":"High","location":"Gurugram","project":"M3M Forestia West Gurugram","leads":500,"cpl":200,"budget":100000,"costCentre":"Birjesh Gurugram","source":"DMXD","remarks":"Not Performing Pause"},{"status":"PAUSED","priority":"High","location":"Gurugram","project":"Signature Global Tonino Lamborghini Residences Gurugram","leads":600,"cpl":200,"budget":120000,"costCentre":"Birjesh Gurugram","source":"DMXD","remarks":"Not Performing Pause"},{"status":"LIVE","priority":"Unknown","location":"Noida","project":"CRC Joyous Noida","leads":90,"cpl":2000,"budget":180000,"costCentre":"Uday Noida","source":"XD & XDD","remarks":""},{"status":"LIVE","priority":"Unknown","location":"Noida","project":"CRC Maesta Noida","leads":90,"cpl":2000,"budget":180000,"costCentre":"Uday Noida","source":"XD & XDD","remarks":""},{"status":"TO BE LIVE","priority":"Unknown","location":"Gurugram","project":"Smartworld Nature's court Gurugram","leads":200,"cpl":200,"budget":40000,"costCentre":"Birjesh Gurugram","source":"MV","remarks":""},{"status":"TO BE LIVE","priority":"Unknown","location":"Gurugram","project":"Signature Global Floors Gurugram","leads":200,"cpl":200,"budget":40000,"costCentre":"Birjesh Gurugram","source":"MV","remarks":""},{"status":"TO BE LIVE","priority":"Unknown","location":"Gurugram","project":"Smartworld Sky Arc Gurugram","leads":300,"cpl":200,"budget":60000,"costCentre":"Birjesh Gurugram","source":"MV","remarks":""},{"status":"TO BE LIVE","priority":"Unknown","location":"Gurugram","project":"Sobha Crescent Gurugram","leads":400,"cpl":200,"budget":80000,"costCentre":"Birjesh Gurugram","source":"MV","remarks":""},{"status":"TO BE LIVE","priority":"Unknown","location":"Gurugram","project":"M3M Forestia West Gurugram","leads":350,"cpl":200,"budget":70000,"costCentre":"Birjesh Gurugram","source":"AJN","remarks":""},{"status":"TO BE LIVE","priority":"Unknown","location":"Gurugram","project":"Smartworld Nature's court Gurugram","leads":350,"cpl":200,"budget":70000,"costCentre":"Birjesh Gurugram","source":"AJN","remarks":""},{"status":"TO BE LIVE","priority":"Unknown","location":"Gurugram","project":"M3M Antalya Hills Gurugram","leads":350,"cpl":200,"budget":70000,"costCentre":"Birjesh Gurugram","source":"AJN","remarks":""},{"status":"TO BE LIVE","priority":"Unknown","location":"Gurugram","project":"Signature Global Floors Gurugram","leads":350,"cpl":200,"budget":70000,"costCentre":"Birjesh Gurugram","source":"AJN","remarks":""},{"status":"LIVE","priority":"Unknown","location":"Noida","project":"SKA Siddhart Vihar Ghaziabad","leads":500,"cpl":300,"budget":150000,"costCentre":"Birjesh Noida","source":"AJN","remarks":""},{"status":"LIVE","priority":"Unknown","location":"Noida","project":"Bootes aspire silicon city Noida","leads":500,"cpl":1500,"budget":750000,"costCentre":"Birjesh, Pulkit, Punit, Chetan, Sachin, Uday","source":"XD","remarks":""},{"status":"LIVE","priority":"Unknown","location":"Noida","project":"Bootes aspire Leisure valley Noida","leads":500,"cpl":1500,"budget":750000,"costCentre":"Birjesh, Pulkit, Punit, Chetan, Sachin, Uday","source":"XD","remarks":""},{"status":"LIVE","priority":"Unknown","location":"Noida","project":"Bootes aspire silicon city Noida","leads":3000,"cpl":300,"budget":900000,"costCentre":"Pulkit Dhuria & Chetan Gulati","source":"DMXD","remarks":""},{"status":"LIVE","priority":"Unknown","location":"Noida","project":"Bootes aspire Leisure valley Noida","leads":3000,"cpl":300,"budget":900000,"costCentre":"Pulkit Dhuria & Chetan Gulati","source":"DMXD","remarks":""},{"status":"LIVE","priority":"High","location":"Delhi","project":"Omaxe Kaushambi Ghaziabad","leads":200,"cpl":400,"budget":80000,"costCentre":"Biswajit Delhi","source":"DMXD","remarks":""}];
-const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQaILtxqh7c-1ppUO8tlg_eHuJ5BpxJJ25Gj7qff80VrwsOwov2abmbyxBZp5UpOw/pub?gid=260346736&single=true&output=csv";
+// ═══════════════════════════════════════════════════════════
+//  CONFIGURATION
+// ═══════════════════════════════════════════════════════════
+const CAMPAIGNS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRGDbvnyVPzdVC7zH4GEbtWyaOXAJzKoGPZ5MHf925C87MSv7V76UMOK4vhuOiIIA/pub?gid=630108538&single=true&output=csv';
+const BUDGET_CSV_URL    = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRIKDNWbsKbjowc9L4W5Tlf5xmA7PeKnZrS8PHkEkclnN-8-VkJirc_FgW3lfQVJg/pub?gid=527327378&single=true&output=csv';
+const AUTO_REFRESH_MIN  = 5;
 
-// ─── STATE ───
+// ═══════════════════════════════════════════════════════════
+//  STATUS NORMALISER
+//  The sheet uses free-text like "Paused By Amit", "Pause due to non performance"
+//  "LIVE ", "To Be Live " etc — we map them all to canonical values.
+// ═══════════════════════════════════════════════════════════
+function normaliseStatus(raw) {
+  const s = (raw || '').trim().toUpperCase();
+  if (!s) return 'Unknown';
+  if (s === 'LIVE' || s === 'LIVE ')         return 'LIVE';
+  if (s.startsWith('TO BE LIVE') || s.startsWith('TO BE LIVE')) return 'TO BE LIVE';
+  if (s === 'NEW')                            return 'NEW';
+  // Anything with "PAUSE" in it → PAUSED
+  if (s.includes('PAUSE') || s.includes('PAUSED')) return 'PAUSED';
+  if (s.startsWith('TO BE') || s.includes('UPCOMING') || s.includes('PENDING')) return 'TO BE LIVE';
+  return 'Unknown';
+}
+
+function normalisePriority(raw) {
+  const s = (raw || '').trim().toUpperCase();
+  if (s === 'HIGH' || s === 'H' || s === 'HGH') return 'High';
+  if (s === 'MEDIUM' || s === 'MED' || s === 'M') return 'Medium';
+  if (s === 'LOW' || s === 'L')  return 'Low';
+  return 'Unknown';
+}
+
+// ═══════════════════════════════════════════════════════════
+//  CSV PARSER  (handles quoted fields, commas inside cells)
+// ═══════════════════════════════════════════════════════════
+function parseCSV(text) {
+  const lines = text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').trim().split('\n');
+  if (lines.length < 2) return { headers: [], rows: [] };
+
+  function splitLine(line) {
+    const cells = [];
+    let cell = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (ch === '"') {
+        if (inQ && line[i+1] === '"') { cell += '"'; i++; }
+        else inQ = !inQ;
+      } else if (ch === ',' && !inQ) {
+        cells.push(cell.trim()); cell = '';
+      } else {
+        cell += ch;
+      }
+    }
+    cells.push(cell.trim());
+    return cells;
+  }
+
+  const headers = splitLine(lines[0]).map(h => h.replace(/^"|"$/g,'').trim());
+  const rows = [];
+  for (let i = 1; i < lines.length; i++) {
+    if (!lines[i].trim()) continue;
+    const cells = splitLine(lines[i]);
+    const obj = {};
+    headers.forEach((h, idx) => { obj[h] = (cells[idx] || '').replace(/^"|"$/g,'').trim(); });
+    rows.push(obj);
+  }
+  return { headers, rows };
+}
+
+// ═══════════════════════════════════════════════════════════
+//  PARSE CAMPAIGNS SHEET
+//  Headers: STATUS | Priority | Location | Project Name |
+//           Lead Count | CPL | Total Budget | Cost Centre | Source
+// ═══════════════════════════════════════════════════════════
+function parseCampaigns(csvText) {
+  const { rows } = parseCSV(csvText);
+  const records = [];
+  rows.forEach(r => {
+    // Try multiple possible column name variants
+    const rawStatus = r['STATUS'] || r['Status'] || r['status'] || '';
+    if (!rawStatus.trim()) return; // skip blank rows
+
+    const status = normaliseStatus(rawStatus);
+    const priority = normalisePriority(r['Priority'] || r['PRIORITY'] || '');
+    const location = (r['Location'] || r['LOCATION'] || '').trim();
+    const project  = (r['Project Name'] || r['Project'] || r['PROJECT NAME'] || '').trim();
+    const costCentre = (r['Cost Centre'] || r['COST CENTRE'] || r['CostCentre'] || '').trim();
+    const source   = (r['Source'] || r['SOURCE'] || '').trim();
+    const leads    = parseInt((r['Lead Count'] || r['Leads'] || r['LEADS'] || '0').replace(/[^\d]/g,'')) || 0;
+    const cpl      = parseInt((r['CPL'] || '0').replace(/[^\d]/g,'')) || 0;
+    const budget   = parseInt((r['Total Budget'] || r['Budget'] || r['BUDGET'] || '0').replace(/[^\d]/g,'')) || 0;
+    const remarks  = (r['Remarks'] || r['REMARKS'] || r['Remark'] || '').trim();
+
+    if (!location && !project) return; // skip truly empty rows
+    records.push({ status, priority, location, project, costCentre, source, leads, cpl, budget, remarks });
+  });
+  return records;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  PARSE BUDGET ALLOCATION SHEET
+//  Headers: Branch | Team Heads | TOTAL
+// ═══════════════════════════════════════════════════════════
+function parseBudgetAlloc(csvText) {
+  const { rows } = parseCSV(csvText);
+  return rows
+    .filter(r => {
+      const branch = (r['Branch'] || r['BRANCH'] || '').trim();
+      const total  = (r['TOTAL'] || r['Total'] || '').trim();
+      return branch && total;
+    })
+    .map(r => ({
+      branch: (r['Branch'] || r['BRANCH'] || '').trim(),
+      head:   (r['Team Heads'] || r['Team Head'] || '').trim(),
+      total:  parseInt((r['TOTAL'] || r['Total'] || '0').replace(/[^\d]/g,'')) || 0,
+    }));
+}
+
+// ═══════════════════════════════════════════════════════════
+//  FETCH WITH CORS PROXY FALLBACK
+// ═══════════════════════════════════════════════════════════
+async function fetchCSV(url) {
+  // Google Sheets published CSV allows direct fetch from browser
+  const resp = await fetch(url + '&cachebust=' + Date.now(), { cache: 'no-store' });
+  if (!resp.ok) throw new Error('HTTP ' + resp.status);
+  return await resp.text();
+}
+
+// ═══════════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════════
+let RAW = [];
+let ALLOC = [];
 let statusFilter = 'ALL';
-let sortCol = 'budget';
-let sortDir = -1;
+let sortCol = 'budget', sortDir = -1;
 let currentPage = 1;
 const PAGE_SIZE = 20;
-
-function getLocations() {
-  return [...new Set(RAW.map(r => r.location))].sort();
-}
-function getSources() {
-  return [...new Set(RAW.map(r => r.source))].filter(Boolean).sort();
-}
-
-// populate selects
 const locSel = document.getElementById('loc-filter');
-getLocations().forEach(l => { const o=document.createElement('option'); o.value=l; o.textContent=l; locSel.appendChild(o); });
 const srcSel = document.getElementById('src-filter');
-getSources().forEach(s => { const o=document.createElement('option'); o.value=s; o.textContent=s; srcSel.appendChild(o); });
+
+// ═══════════════════════════════════════════════════════════
+//  LOAD ALL DATA
+// ═══════════════════════════════════════════════════════════
+async function loadAllData() {
+  setBadge('loading');
+  setStatusIndicator('loading');
+  document.getElementById('loading-overlay').style.display = 'flex';
+
+  let campOk = false, allocOk = false;
+  const errors = [];
+
+  // Fetch campaigns sheet
+  try {
+    const csvText = await fetchCSV(CAMPAIGNS_CSV_URL);
+    const records = parseCampaigns(csvText);
+    if (records.length > 0) {
+      RAW = records;
+      campOk = true;
+      document.getElementById('camp-count').textContent = records.length + ' rows';
+    } else {
+      throw new Error('0 rows parsed');
+    }
+  } catch(e) {
+    errors.push('Campaigns: ' + e.message);
+    console.error('Campaigns fetch error:', e);
+  }
+
+  // Fetch budget allocation sheet
+  try {
+    const csvText = await fetchCSV(BUDGET_CSV_URL);
+    const alloc = parseBudgetAlloc(csvText);
+    if (alloc.length > 0) {
+      ALLOC = alloc;
+      allocOk = true;
+      document.getElementById('alloc-count').textContent = alloc.length + ' branches';
+    } else {
+      throw new Error('0 rows parsed');
+    }
+  } catch(e) {
+    errors.push('Budget: ' + e.message);
+    console.error('Budget fetch error:', e);
+  }
+
+  document.getElementById('loading-overlay').style.display = 'none';
+
+  if (campOk || allocOk) {
+    const now = new Date();
+    document.getElementById('last-updated').textContent =
+      now.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit', second:'2-digit' }) +
+      ' · ' + now.toLocaleDateString('en-IN', { day:'2-digit', month:'short' });
+
+    setBadge(campOk && allocOk ? 'live' : 'partial');
+    setStatusIndicator(campOk ? 'live' : 'error');
+    populateSelects();
+    statusFilter = 'ALL'; currentPage = 1;
+    render();
+    renderAllocRow();
+  } else {
+    setBadge('error');
+    setStatusIndicator('error');
+    document.getElementById('table-body').innerHTML =
+      `<tr><td colspan="9"><div class="empty-state">⚠ Could not load data.<br><small style="color:var(--muted)">${errors.join(' | ')}</small><br><small style="color:var(--muted)">Check that both Google Sheets are Published to Web as CSV.</small></div></td></tr>`;
+  }
+}
+
+function setBadge(state) {
+  const el = document.getElementById('data-badge');
+  if (state === 'live')    { el.className='badge badge-live';    el.innerHTML='<span class="dot"></span> Live · Google Sheets'; }
+  else if(state==='partial'){el.className='badge badge-tbl';     el.innerHTML='<span class="dot"></span> Partial data'; }
+  else if(state==='loading'){el.className='badge badge-unknown'; el.innerHTML='<span class="dot"></span> Fetching…'; }
+  else                     { el.className='badge badge-paused';  el.innerHTML='<span class="dot"></span> Fetch error'; }
+}
+
+function setStatusIndicator(state) {
+  const el = document.getElementById('status-indicator');
+  if (state === 'live')    el.innerHTML = '<span class="status-dot dot-green"></span><span class="label">Live data</span>';
+  else if(state==='loading')el.innerHTML= '<span class="status-dot dot-yellow"></span><span class="label">Fetching…</span>';
+  else                     el.innerHTML = '<span class="status-dot dot-red"></span><span class="label">Connection issue</span>';
+}
+
+// ═══════════════════════════════════════════════════════════
+//  BUDGET ALLOCATION ROW
+// ═══════════════════════════════════════════════════════════
+function renderAllocRow() {
+  if (!ALLOC.length) return;
+  // Calculate actual spend per branch from campaign data
+  const spendMap = {};
+  RAW.forEach(r => {
+    const key = r.location.trim().toUpperCase();
+    spendMap[key] = (spendMap[key] || 0) + r.budget;
+  });
+
+  const el = document.getElementById('alloc-row');
+  el.innerHTML = ALLOC.map(a => {
+    const key = a.branch.trim().toUpperCase().replace(/\s+/g,'');
+    // find matching spend loosely
+    let spent = 0;
+    Object.keys(spendMap).forEach(k => {
+      if (k.replace(/\s+/g,'').includes(key) || key.includes(k.replace(/\s+/g,''))) {
+        spent += spendMap[k];
+      }
+    });
+    const pct = a.total > 0 ? Math.min(100, (spent / a.total * 100)) : 0;
+    const barColor = pct > 90 ? '#ff6b6b' : pct > 70 ? '#ffc107' : '#4f8ef7';
+    return `
+      <div class="alloc-cell" title="${a.head}">
+        <div class="alloc-branch">${a.branch}</div>
+        <div class="alloc-name">${a.head}</div>
+        <div class="alloc-budget">${fmtNum(a.total)}</div>
+        <div class="alloc-used">Allocated budget</div>
+        <div class="alloc-bar-track"><div class="alloc-bar-fill" style="width:${pct.toFixed(1)}%;background:${barColor}"></div></div>
+      </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════
+//  SELECTS + FILTERS
+// ═══════════════════════════════════════════════════════════
+function populateSelects() {
+  while (locSel.options.length > 1) locSel.remove(1);
+  while (srcSel.options.length > 1) srcSel.remove(1);
+  [...new Set(RAW.map(r => r.location))].filter(Boolean).sort()
+    .forEach(l => { const o=document.createElement('option'); o.value=l; o.textContent=l; locSel.appendChild(o); });
+  [...new Set(RAW.map(r => r.source))].filter(Boolean).sort()
+    .forEach(s => { const o=document.createElement('option'); o.value=s; o.textContent=s; srcSel.appendChild(o); });
+}
 
 function getFiltered() {
   const loc = locSel.value;
   const pri = document.getElementById('pri-filter').value;
   const src = srcSel.value;
-  const q = document.getElementById('search-input').value.toLowerCase().trim();
+  const q   = document.getElementById('search-input').value.toLowerCase().trim();
   return RAW.filter(r => {
     if (statusFilter !== 'ALL' && r.status !== statusFilter) return false;
     if (loc !== 'ALL' && r.location !== loc) return false;
     if (pri !== 'ALL' && r.priority !== pri) return false;
     if (src !== 'ALL' && r.source !== src) return false;
-    if (q && !r.project.toLowerCase().includes(q) && !r.costCentre.toLowerCase().includes(q)) return false;
+    if (q && !r.project.toLowerCase().includes(q) && !r.costCentre.toLowerCase().includes(q) && !r.location.toLowerCase().includes(q)) return false;
     return true;
   });
 }
@@ -426,7 +576,7 @@ function getFiltered() {
 function getSorted(data) {
   return [...data].sort((a,b) => {
     let av = a[sortCol], bv = b[sortCol];
-    if (typeof av === 'string') av = av.toLowerCase(), bv = bv.toLowerCase();
+    if (typeof av === 'string') { av = av.toLowerCase(); bv = bv.toLowerCase(); }
     return av < bv ? sortDir : av > bv ? -sortDir : 0;
   });
 }
@@ -443,8 +593,7 @@ function setStatusFilter(s) {
       else if (s==='NEW') c.classList.add('active-new');
     }
   });
-  currentPage = 1;
-  render();
+  currentPage = 1; render();
 }
 
 function applyFilters() { currentPage = 1; render(); }
@@ -456,7 +605,6 @@ function resetFilters() {
   srcSel.value = 'ALL';
   document.getElementById('search-input').value = '';
   setStatusFilter('ALL');
-  render();
 }
 
 function sortBy(col) {
@@ -464,100 +612,85 @@ function sortBy(col) {
   render();
 }
 
+// ═══════════════════════════════════════════════════════════
+//  FORMAT HELPERS
+// ═══════════════════════════════════════════════════════════
 function fmtNum(n) {
   if (n >= 1e7) return '₹' + (n/1e7).toFixed(1) + 'Cr';
   if (n >= 1e5) return '₹' + (n/1e5).toFixed(1) + 'L';
   if (n >= 1e3) return '₹' + (n/1e3).toFixed(0) + 'K';
   return '₹' + n;
 }
-
 function statusColor(s) {
-  if (s==='LIVE') return 'var(--live)';
-  if (s==='PAUSED') return 'var(--paused)';
-  if (s==='TO BE LIVE') return 'var(--tbl)';
-  if (s==='NEW') return 'var(--new)';
-  return 'var(--unknown)';
+  return s==='LIVE'?'var(--live)':s==='PAUSED'?'var(--paused)':s==='TO BE LIVE'?'var(--tbl)':s==='NEW'?'var(--new)':'var(--unknown)';
 }
 function statusBg(s) {
-  if (s==='LIVE') return 'var(--live-bg)';
-  if (s==='PAUSED') return 'var(--paused-bg)';
-  if (s==='TO BE LIVE') return 'var(--tbl-bg)';
-  if (s==='NEW') return 'var(--new-bg)';
-  return 'var(--unknown-bg)';
+  return s==='LIVE'?'var(--live-bg)':s==='PAUSED'?'var(--paused-bg)':s==='TO BE LIVE'?'var(--tbl-bg)':s==='NEW'?'var(--new-bg)':'var(--unknown-bg)';
 }
 function priorityColor(p) {
-  if (p==='High') return 'var(--high)';
-  if (p==='Medium') return 'var(--medium)';
-  if (p==='Low') return 'var(--low)';
-  return 'var(--muted)';
+  return p==='High'?'var(--high)':p==='Medium'?'var(--medium)':p==='Low'?'var(--low)':'var(--muted)';
 }
 
+// ═══════════════════════════════════════════════════════════
+//  RENDER
+// ═══════════════════════════════════════════════════════════
 function render() {
   const filtered = getFiltered();
-  const sorted = getSorted(filtered);
+  const sorted   = getSorted(filtered);
+
+  // Update header count
+  document.getElementById('total-count').textContent = RAW.length;
 
   // KPIs
-  const statusCounts = {LIVE:0,'TO BE LIVE':0,PAUSED:0,NEW:0};
+  const sc = {LIVE:0,'TO BE LIVE':0,PAUSED:0,NEW:0};
   let totalBudget=0, totalLeads=0, cplSum=0, cplCount=0;
   filtered.forEach(r => {
-    if (r.status in statusCounts) statusCounts[r.status]++;
-    totalBudget += r.budget;
-    totalLeads += r.leads;
-    if (r.cpl>0) { cplSum += r.cpl; cplCount++; }
+    if (r.status in sc) sc[r.status]++;
+    totalBudget += r.budget; totalLeads += r.leads;
+    if (r.cpl > 0) { cplSum += r.cpl; cplCount++; }
   });
-  document.getElementById('kv-total').textContent = filtered.length;
-  document.getElementById('kv-live').textContent = statusCounts['LIVE'];
-  document.getElementById('kv-tbl').textContent = statusCounts['TO BE LIVE'];
-  document.getElementById('kv-paused').textContent = statusCounts['PAUSED'];
+  document.getElementById('kv-total').textContent  = filtered.length;
+  document.getElementById('kv-live').textContent   = sc['LIVE'];
+  document.getElementById('kv-tbl').textContent    = sc['TO BE LIVE'];
+  document.getElementById('kv-paused').textContent = sc['PAUSED'];
   document.getElementById('kv-budget').textContent = fmtNum(totalBudget);
-  document.getElementById('kv-leads').textContent = totalLeads.toLocaleString('en-IN');
-  document.getElementById('kv-cpl').textContent = cplCount ? '₹' + Math.round(cplSum/cplCount) : '—';
+  document.getElementById('kv-leads').textContent  = totalLeads.toLocaleString('en-IN');
+  document.getElementById('kv-cpl').textContent    = cplCount ? '₹' + Math.round(cplSum/cplCount) : '—';
 
-  // Location bar chart
+  // Bar chart
   const locMap = {};
   filtered.forEach(r => { locMap[r.location] = (locMap[r.location]||0) + r.budget; });
   const locEntries = Object.entries(locMap).sort((a,b)=>b[1]-a[1]);
-  const maxBudget = locEntries[0]?.[1] || 1;
-  const colors = ['#4f8ef7','#00e5a0','#ffc107','#ff6b6b','#7c6af5','#5bc2e7','#ff9a3c','#a8e6cf','#ffb3ba','#c9b1ff','#b5ead7'];
-  const barsEl = document.getElementById('location-bars');
-  barsEl.innerHTML = locEntries.map(([loc,bud],i) => `
+  const maxB = locEntries[0]?.[1] || 1;
+  const colors = ['#4f8ef7','#00e5a0','#ffc107','#ff6b6b','#7c6af5','#5bc2e7','#ff9a3c','#a8e6cf','#c9b1ff','#b5ead7','#ffb3ba'];
+  document.getElementById('location-bars').innerHTML = locEntries.map(([loc,bud],i) => `
     <div class="bar-row">
       <div class="bar-name">${loc}</div>
-      <div class="bar-track">
-        <div class="bar-fill" style="width:${(bud/maxBudget*100).toFixed(1)}%;background:${colors[i%colors.length]};"></div>
-      </div>
+      <div class="bar-track"><div class="bar-fill" style="width:${(bud/maxB*100).toFixed(1)}%;background:${colors[i%colors.length]}"></div></div>
       <div class="bar-val">${fmtNum(bud)}</div>
-    </div>
-  `).join('');
+    </div>`).join('');
 
-  // Donut chart
-  const statusMap = {};
-  filtered.forEach(r => { statusMap[r.status] = (statusMap[r.status]||0)+1; });
-  const statusEntries = Object.entries(statusMap).sort((a,b)=>b[1]-a[1]);
-  const total = filtered.length || 1;
-  const statusColors = {'LIVE':'#00e5a0','TO BE LIVE':'#ffc107','PAUSED':'#ff6b6b','NEW':'#7c6af5','Unknown':'#778899'};
-  let cumAngle = -Math.PI/2;
-  const r=50, cx=70, cy=70, strokeW=22;
+  // Donut
+  const stMap = {};
+  filtered.forEach(r => { stMap[r.status] = (stMap[r.status]||0)+1; });
+  const stEntries = Object.entries(stMap).sort((a,b)=>b[1]-a[1]);
+  const tot = filtered.length || 1;
+  const stColors = {'LIVE':'#00e5a0','TO BE LIVE':'#ffc107','PAUSED':'#ff6b6b','NEW':'#7c6af5','Unknown':'#778899'};
+  let cum = -Math.PI/2;
+  const R=50,CX=70,CY=70,SW=22;
   let paths = '';
-  statusEntries.forEach(([st,cnt]) => {
-    const angle = (cnt/total)*Math.PI*2;
-    const x1=cx+r*Math.cos(cumAngle), y1=cy+r*Math.sin(cumAngle);
-    const x2=cx+r*Math.cos(cumAngle+angle), y2=cy+r*Math.sin(cumAngle+angle);
-    const largeArc = angle>Math.PI?1:0;
-    paths += `<path d="M ${x1} ${y1} A ${r} ${r} 0 ${largeArc} 1 ${x2} ${y2}" fill="none" stroke="${statusColors[st]||'#778899'}" stroke-width="${strokeW}" stroke-linecap="butt"/>`;
-    cumAngle += angle;
+  stEntries.forEach(([st,cnt]) => {
+    const a = (cnt/tot)*Math.PI*2;
+    const x1=CX+R*Math.cos(cum), y1=CY+R*Math.sin(cum);
+    const x2=CX+R*Math.cos(cum+a), y2=CY+R*Math.sin(cum+a);
+    paths += `<path d="M ${x1} ${y1} A ${R} ${R} 0 ${a>Math.PI?1:0} 1 ${x2} ${y2}" fill="none" stroke="${stColors[st]||'#778899'}" stroke-width="${SW}" stroke-linecap="butt"/>`;
+    cum += a;
   });
-  const svgEl = document.getElementById('donut-svg');
-  svgEl.innerHTML = paths + `<text x="${cx}" y="${cy+5}" text-anchor="middle" fill="#e8eaf0" font-size="18" font-weight="700" font-family="JetBrains Mono">${filtered.length}</text>`;
-
-  const legendEl = document.getElementById('donut-legend');
-  legendEl.innerHTML = statusEntries.map(([st,cnt])=>`
-    <div class="legend-item">
-      <div class="legend-dot" style="background:${statusColors[st]||'#778899'}"></div>
-      <span class="legend-name">${st}</span>
-      <span class="legend-val">${cnt}</span>
-    </div>
-  `).join('');
+  document.getElementById('donut-svg').innerHTML = paths +
+    `<text x="${CX}" y="${CY+5}" text-anchor="middle" fill="#e8eaf0" font-size="18" font-weight="700" font-family="JetBrains Mono">${filtered.length}</text>`;
+  document.getElementById('donut-legend').innerHTML = stEntries.map(([st,cnt]) =>
+    `<div class="legend-item"><div class="legend-dot" style="background:${stColors[st]||'#778899'}"></div><span class="legend-name">${st}</span><span class="legend-val">${cnt}</span></div>`
+  ).join('');
 
   // Sort indicators
   ['status','priority','location','project','costCentre','source','leads','cpl','budget'].forEach(c => {
@@ -571,49 +704,45 @@ function render() {
   const pageData = sorted.slice((currentPage-1)*PAGE_SIZE, currentPage*PAGE_SIZE);
 
   const tbody = document.getElementById('table-body');
-  if (pageData.length===0) {
+  if (!pageData.length) {
     tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state">No campaigns match your filters.</div></td></tr>`;
   } else {
     tbody.innerHTML = pageData.map(r => `
       <tr onmouseenter="showTooltip(event,${JSON.stringify(r).replace(/"/g,'&quot;')})" onmouseleave="hideTooltip()">
         <td><span class="status-pill" style="background:${statusBg(r.status)};color:${statusColor(r.status)};border:1px solid ${statusColor(r.status)}44">${r.status}</span></td>
-        <td><span class="priority-dot" style="background:${priorityColor(r.priority)}"></span> <span style="color:${priorityColor(r.priority)};font-size:12px">${r.priority}</span></td>
+        <td><span class="priority-dot" style="background:${priorityColor(r.priority)}"></span> <span style="color:${priorityColor(r.priority)};font-size:11px">${r.priority}</span></td>
         <td style="color:var(--muted)">${r.location}</td>
-        <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.project}">${r.project}</td>
-        <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted)" title="${r.costCentre}">${r.costCentre}</td>
-        <td><span style="background:rgba(79,142,247,0.12);color:var(--accent);padding:2px 7px;border-radius:10px;font-size:11px;font-weight:500">${r.source}</span></td>
+        <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.project}">${r.project}</td>
+        <td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted)" title="${r.costCentre}">${r.costCentre}</td>
+        <td><span style="background:rgba(79,142,247,0.12);color:var(--accent);padding:2px 7px;border-radius:10px;font-size:10px;font-weight:500">${r.source}</span></td>
         <td style="text-align:right" class="mono">${r.leads.toLocaleString('en-IN')}</td>
-        <td style="text-align:right" class="mono">₹${r.cpl.toLocaleString('en-IN')}</td>
-        <td style="text-align:right;font-weight:600;color:${r.budget>500000?'var(--live)':r.budget>200000?'var(--accent)':'var(--text)'}" class="mono">${fmtNum(r.budget)}</td>
-      </tr>
-    `).join('');
+        <td style="text-align:right" class="mono">${r.cpl ? '₹'+r.cpl.toLocaleString('en-IN') : '—'}</td>
+        <td style="text-align:right;font-weight:600;color:${r.budget>500000?'var(--live)':r.budget>200000?'var(--accent)':'var(--text)'}" class="mono">${r.budget ? fmtNum(r.budget) : '—'}</td>
+      </tr>`).join('');
   }
 
-  // result count
   document.getElementById('result-count').textContent = `${filtered.length} campaigns`;
-  document.getElementById('table-title').textContent = statusFilter==='ALL' ? 'All Campaigns' : statusFilter + ' Campaigns';
-
-  // Pagination
-  document.getElementById('page-info').textContent = `Page ${currentPage} of ${totalPages} · ${sorted.length} rows`;
+  document.getElementById('table-title').textContent  = statusFilter==='ALL' ? 'All Campaigns' : statusFilter + ' Campaigns';
+  document.getElementById('page-info').textContent    = `Page ${currentPage} of ${totalPages} · ${sorted.length} rows`;
   document.getElementById('btn-prev').disabled = currentPage<=1;
   document.getElementById('btn-next').disabled = currentPage>=totalPages;
 
   const pbWrap = document.getElementById('page-buttons');
   pbWrap.innerHTML = '';
-  const range = [];
-  for(let p=Math.max(1,currentPage-2);p<=Math.min(totalPages,currentPage+2);p++) range.push(p);
-  range.forEach(p=>{
-    const btn=document.createElement('button');
-    btn.className='page-btn'+(p===currentPage?' active':'');
-    btn.textContent=p;
-    btn.onclick=()=>{currentPage=p;render();};
+  for (let p=Math.max(1,currentPage-2); p<=Math.min(totalPages,currentPage+2); p++) {
+    const btn = document.createElement('button');
+    btn.className = 'page-btn' + (p===currentPage?' active':'');
+    btn.textContent = p;
+    btn.onclick = () => { currentPage=p; render(); };
     pbWrap.appendChild(btn);
-  });
+  }
 }
 
 function changePage(d) { currentPage=Math.max(1,currentPage+d); render(); }
 
-// Tooltip
+// ═══════════════════════════════════════════════════════════
+//  TOOLTIP
+// ═══════════════════════════════════════════════════════════
 const tooltip = document.getElementById('tooltip');
 function showTooltip(e,r) {
   tooltip.innerHTML = `
@@ -624,24 +753,28 @@ function showTooltip(e,r) {
     <div class="tooltip-row"><span>Source</span><span>${r.source}</span></div>
     <div class="tooltip-row"><span>Budget</span><span>${fmtNum(r.budget)}</span></div>
     <div class="tooltip-row"><span>Leads Target</span><span>${r.leads.toLocaleString('en-IN')}</span></div>
-    <div class="tooltip-row"><span>CPL</span><span>₹${r.cpl.toLocaleString('en-IN')}</span></div>
-    ${r.remarks?`<div class="tooltip-row"><span>Remark</span><span style="color:var(--paused)">${r.remarks}</span></div>`:''}
+    <div class="tooltip-row"><span>CPL</span><span>${r.cpl ? '₹'+r.cpl.toLocaleString('en-IN') : '—'}</span></div>
+    ${r.remarks ? `<div class="tooltip-row"><span>Remark</span><span style="color:var(--paused)">${r.remarks}</span></div>` : ''}
   `;
   tooltip.classList.add('visible');
   positionTooltip(e);
 }
 function positionTooltip(e) {
-  const t = tooltip;
-  let x = e.clientX+14, y = e.clientY-10;
-  if (x+280>window.innerWidth) x = e.clientX-290;
-  if (y+t.offsetHeight>window.innerHeight) y = window.innerHeight-t.offsetHeight-10;
-  t.style.left=x+'px'; t.style.top=y+'px';
+  let x=e.clientX+14, y=e.clientY-10;
+  if (x+280>window.innerWidth) x=e.clientX-290;
+  if (y+tooltip.offsetHeight>window.innerHeight) y=window.innerHeight-tooltip.offsetHeight-10;
+  tooltip.style.left=x+'px'; tooltip.style.top=y+'px';
 }
 document.addEventListener('mousemove', e => { if(tooltip.classList.contains('visible')) positionTooltip(e); });
 function hideTooltip() { tooltip.classList.remove('visible'); }
 
-// INIT
-render();
+// ═══════════════════════════════════════════════════════════
+//  INIT + AUTO-REFRESH
+// ═══════════════════════════════════════════════════════════
+loadAllData();
+if (AUTO_REFRESH_MIN > 0) {
+  setInterval(loadAllData, AUTO_REFRESH_MIN * 60 * 1000);
+}
 </script>
 </body>
 </html>
